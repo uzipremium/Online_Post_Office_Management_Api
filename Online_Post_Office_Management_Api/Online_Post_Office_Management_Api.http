@@ -1,0 +1,6 @@
+@Online_Post_Office_Management_Api_HostAddress = http://localhost:5076
+
+GET {{Online_Post_Office_Management_Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
