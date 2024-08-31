@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using Online_Post_Office_Management_Api.Data;
+using Online_Post_Office_Management_Api.Commands;
 using Online_Post_Office_Management_Api.Models;
+using Online_Post_Office_Management_Api.Queries;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,133 +12,68 @@ namespace Online_Post_Office_Management_Api.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly IMongoCollection<Employee> _employees;
-        private readonly IMongoCollection<Account> _accounts;
-        private readonly IMongoCollection<Office> _offices;
-        private readonly IMongoCollection<Role> _roles;
+        private readonly IMediator _mediator;
 
-        public EmployeeController(MongoDbService mongoDbService)
+        public EmployeeController(IMediator mediator)
         {
-            _employees = mongoDbService.Database.GetCollection<Employee>("Employee");
-            _accounts = mongoDbService.Database.GetCollection<Account>("Account");
-            _offices = mongoDbService.Database.GetCollection<Office>("Office");
-            _roles = mongoDbService.Database.GetCollection<Role>("Role");
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Employee>> Get()
+        public async Task<ActionResult<List<Employee>>> GetAllEmployees()
         {
-            return await _employees.Find(FilterDefinition<Employee>.Empty).ToListAsync();
+            var employees = await _mediator.Send(new EmployeeGetAll());
+            return Ok(employees);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee?>> GetById(string id)
+        public async Task<ActionResult<Employee>> GetEmployeeById(string id)
         {
-            var filter = Builders<Employee>.Filter.Eq(x => x.Id, id);
-            var employee = await _employees.Find(filter).FirstOrDefaultAsync();
+            var employee = await _mediator.Send(new EmployeeGetOne(id));
             return employee is not null ? Ok(employee) : NotFound();
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateEmployeeWithAccount([FromBody] EmployeeWithAccountDto dto)
+        public async Task<ActionResult<Employee>> CreateEmployeeWithAccount([FromBody] CreateEmployeeAndAccount command)
         {
-            if (dto == null)
+            if (command == null)
             {
-                return BadRequest(new { Message = "The dto field is required." });
+                return BadRequest(new { Message = "The command field is required." });
             }
 
-            var employee = dto.Employee;
-            var account = dto.Account;
-
-            if (string.IsNullOrEmpty(account.Id))
-            {
-                account.Id = ObjectId.GenerateNewId().ToString();
-            }
-
-            if (string.IsNullOrEmpty(employee.Id))
-            {
-                employee.Id = ObjectId.GenerateNewId().ToString();
-            }
-
-            employee.AccountId = account.Id;
-
-            var officeExists = await _offices.Find(x => x.Id == employee.OfficeId).AnyAsync();
-            var roleExists = await _roles.Find(x => x.Id == account.RoleId).AnyAsync();
-
-            if (!officeExists)
-            {
-                return BadRequest(new { Message = "The specified OfficeId does not exist." });
-            }
-
-            if (!roleExists)
-            {
-                return BadRequest(new { Message = "The specified RoleId does not exist." });
-            }
-
-            await _accounts.InsertOneAsync(account);
-
-            employee.CreatedDate = DateTime.UtcNow;
-            await _employees.InsertOneAsync(employee);
-
-            return CreatedAtAction(nameof(GetById), new { id = employee.Id }, employee);
+            var employee = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
         }
 
-
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateEmployee(string id, [FromBody] Employee updatedEmployee)
+        public async Task<ActionResult> UpdateEmployee(string id, [FromBody] UpdateEmployee command)
         {
-            var filter = Builders<Employee>.Filter.Eq(x => x.Id, id);
-
-            var employee = await _employees.Find(filter).FirstOrDefaultAsync();
-            if (employee is null)
+            if (id != command.Id)
             {
-                return NotFound();
+                return BadRequest("Employee ID mismatch.");
             }
 
-            var updateDefinition = Builders<Employee>.Update
-                .Set(x => x.Email, updatedEmployee.Email)
-                .Set(x => x.Phone, updatedEmployee.Phone)
-                .Set(x => x.Gender, updatedEmployee.Gender)
-                .Set(x => x.Name, updatedEmployee.Name)
-                .Set(x => x.DateOfBirth, updatedEmployee.DateOfBirth)
-                .Set(x => x.CreatedDate, updatedEmployee.CreatedDate)
-                .Set(x => x.OfficeId, updatedEmployee.OfficeId)
-                .Set(x => x.AccountId, updatedEmployee.AccountId);
+            var result = await _mediator.Send(command);
 
-            var updateResult = await _employees.UpdateOneAsync(filter, updateDefinition);
-
-            if (updateResult.MatchedCount > 0)
+            if (result > 0)
             {
-                return Ok();
+                return Ok("Employee updated successfully.");
             }
 
-            return BadRequest("Update failed.");
+            return NotFound("Employee not found.");
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(string id)
+        public async Task<ActionResult> DeleteEmployee(string id)
         {
-            var employeeFilter = Builders<Employee>.Filter.Eq(x => x.Id, id);
-            var employee = await _employees.Find(employeeFilter).FirstOrDefaultAsync();
+            var result = await _mediator.Send(new DeleteEmployee(id));
 
-            if (employee == null)
+            if (result)
             {
-                return NotFound("Employee not found.");
+                return Ok("Employee deleted successfully.");
             }
 
-            var accountId = employee.AccountId;
-
-            var deleteResult = await _employees.DeleteOneAsync(employeeFilter);
-
-            if (deleteResult.DeletedCount > 0)
-            {
-                var accountFilter = Builders<Account>.Filter.Eq(x => x.Id, accountId);
-                await _accounts.DeleteOneAsync(accountFilter);
-
-                return Ok();
-            }
-
-            return BadRequest("Failed to delete the Employee.");
+            return NotFound("Employee not found.");
         }
     }
 }

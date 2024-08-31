@@ -1,14 +1,23 @@
+using MediatR;
 using Online_Post_Office_Management_Api.Data;
+using Online_Post_Office_Management_Api.Repositories;
+using Online_Post_Office_Management_Api.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<MongoDbService>();
+
+// Register repositories
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+
+// Register MediatR (version 10 and above)
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
 
 var app = builder.Build();
 
