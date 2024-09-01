@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Handlers\AccountHandler\" />
+    <Folder Include="Handlers\CustomerHandler\" />
     <Folder Include="Handlers\DeliveryHandler\" />
     <Folder Include="Handlers\DescriptionHandler\" />
     <Folder Include="Handlers\PaymentHandler\" />
