@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Online_Post_Office_Management_Api.Models;
 
-namespace Online_Post_Office_Management_Api.Queries.CustomerQueries
+namespace Online_Post_Office_Management_Api.Queries.CustomerQuery
 {
     public class CheckPackageStatusQuery : IRequest<Package>
     {

@@ -29,5 +29,6 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             var result = await _deliveries.ReplaceOneAsync(d => d.Id == id, delivery);
             return result.ModifiedCount > 0;
         }
+
     }
 }
