@@ -1,10 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Online_Post_Office_Management_Api.Commands;
+using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Models;
-using Online_Post_Office_Management_Api.Queries;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Online_Post_Office_Management_Api.Queries.EmployeeQuery;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
