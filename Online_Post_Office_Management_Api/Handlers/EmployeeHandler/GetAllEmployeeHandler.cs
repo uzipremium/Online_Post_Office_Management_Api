@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Online_Post_Office_Management_Api.Queries;
-using Online_Post_Office_Management_Api.Repositories;
 using Online_Post_Office_Management_Api.Models;
+using Online_Post_Office_Management_Api.Queries.EmployeeQuery;
+using Online_Post_Office_Management_Api.Repositories;
 
-
-namespace Online_Post_Office_Management_Api.Handlers
+namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
 {
     public class GetAllEmployeeHandler : IRequestHandler<EmployeeGetAll, List<Employee>>
     {
@@ -17,8 +16,8 @@ namespace Online_Post_Office_Management_Api.Handlers
 
         public async Task<List<Employee>> Handle(EmployeeGetAll request, CancellationToken cancellationToken)
         {
-            var employees = await _employeeRepository.Get();
-            return employees.ToList()   ;
+            var employees = await _employeeRepository.GetAll();
+            return employees.ToList();
         }
     }
 }

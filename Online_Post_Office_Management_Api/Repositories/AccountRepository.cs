@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using Online_Post_Office_Management_Api.Data;
+﻿using MongoDB.Driver;
 using Online_Post_Office_Management_Api.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,9 +9,19 @@ namespace Online_Post_Office_Management_Api.Repositories
     {
         private readonly IMongoCollection<Account> _accounts;
 
-        public AccountRepository(MongoDbService mongoDbService)
+        public AccountRepository(IMongoDatabase database)
         {
-            _accounts = mongoDbService.Database.GetCollection<Account>("Account");
+            _accounts = database.GetCollection<Account>("Accounts");
+        }
+
+        public async Task Create(Account account)
+        {
+            await _accounts.InsertOneAsync(account);
+        }
+
+        public async Task<Account> GetById(string id)
+        {
+            return await _accounts.Find(account => account.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Account>> GetAll()
@@ -21,42 +29,16 @@ namespace Online_Post_Office_Management_Api.Repositories
             return await _accounts.Find(FilterDefinition<Account>.Empty).ToListAsync();
         }
 
-        public async Task<Account> GetById(string id)
+        public async Task<bool> Update(string id, Account account)
         {
-            var filter = Builders<Account>.Filter.Eq(x => x.Id, id);
-            return await _accounts.Find(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task Create(Account account)
-        {
-            if (string.IsNullOrEmpty(account.Id))
-            {
-                account.Id = ObjectId.GenerateNewId().ToString();
-            }
-
-            await _accounts.InsertOneAsync(account);
-        }
-
-        public async Task<bool> Update(string id, Account updatedAccount)
-        {
-            var filter = Builders<Account>.Filter.Eq(x => x.Id, id);
-
-            var updateDefinition = Builders<Account>.Update
-                .Set(x => x.Username, updatedAccount.Username)
-                .Set(x => x.Password, updatedAccount.Password)
-                .Set(x => x.RoleId, updatedAccount.RoleId);
-
-            var updateResult = await _accounts.UpdateOneAsync(filter, updateDefinition);
-
-            return updateResult.MatchedCount > 0;
+            var result = await _accounts.ReplaceOneAsync(a => a.Id == id, account);
+            return result.ModifiedCount > 0;
         }
 
         public async Task<bool> Delete(string id)
         {
-            var filter = Builders<Account>.Filter.Eq(x => x.Id, id);
-            var deleteResult = await _accounts.DeleteOneAsync(filter);
-
-            return deleteResult.DeletedCount > 0;
+            var result = await _accounts.DeleteOneAsync(a => a.Id == id);
+            return result.DeletedCount > 0;
         }
     }
 }

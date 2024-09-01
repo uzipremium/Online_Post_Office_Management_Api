@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Online_Post_Office_Management_Api.Commands
+namespace Online_Post_Office_Management_Api.Commands.EmployeeCommand
 {
     public class UpdateEmployee : IRequest<int>
     {

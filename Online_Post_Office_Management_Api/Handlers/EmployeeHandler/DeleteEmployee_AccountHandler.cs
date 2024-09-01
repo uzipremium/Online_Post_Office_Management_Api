@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Online_Post_Office_Management_Api.Commands;
+using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Repositories;
 
-namespace Online_Post_Office_Management_Api.Handlers
+namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
 {
     public class DeleteEmployeeHandler : IRequestHandler<DeleteEmployee_Account, bool>
     {
@@ -27,7 +27,7 @@ namespace Online_Post_Office_Management_Api.Handlers
                 return false;
             }
 
-        
+
             var employeeDeleted = await _employeeRepository.Delete(request.Id);
 
             if (!employeeDeleted)
@@ -36,16 +36,15 @@ namespace Online_Post_Office_Management_Api.Handlers
                 return false;
             }
 
-            // Xóa Account liên quan
             var accountDeleted = await _accountRepository.Delete(employee.AccountId);
 
             if (!accountDeleted)
             {
                 _logger.LogError($"Failed to delete Account with ID {employee.AccountId}.");
-           
+
             }
 
-            return true; 
+            return true;
         }
 
     }

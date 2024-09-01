@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace Online_Post_Office_Management_Api.Commands
+namespace Online_Post_Office_Management_Api.Commands.PackageCommand
 {
     public class UpdatePackage : IRequest<bool>
     {
@@ -12,7 +12,7 @@ namespace Online_Post_Office_Management_Api.Commands
         public string Receiver { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public UpdatePackage(string id,double weight, string deliveryNumber, string receiver, DateTime createdAt)
+        public UpdatePackage(string id, double weight, string deliveryNumber, string receiver, DateTime createdAt)
         {
             Id = id;
             Weight = weight;

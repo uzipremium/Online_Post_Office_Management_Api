@@ -1,9 +1,10 @@
 ﻿using MediatR;
 using MongoDB.Driver;
-using Online_Post_Office_Management_Api.Commands;
+using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Data;
+using Online_Post_Office_Management_Api.Models;
 
-namespace Online_Post_Office_Management_Api.Handlers
+namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
 {
     public class UpdateEmployeeHandler : IRequestHandler<UpdateEmployee, int>
     {
@@ -28,7 +29,8 @@ namespace Online_Post_Office_Management_Api.Handlers
 
             var result = await _employees.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
 
-            return (int)result.ModifiedCount; 
+            // Return 1 if the update was successful, otherwise 0
+            return result.ModifiedCount > 0 ? 1 : 0;
         }
     }
 }
