@@ -66,11 +66,11 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteEmployee(string id)
         {
-            var result = await _mediator.Send(new DeleteEmployee(id));
+            var result = await _mediator.Send(new DeleteEmployee_Account(id));
 
             if (result)
             {
-                return Ok("Employee deleted successfully.");
+                return Ok("Employee and associated account deleted successfully.");
             }
 
             return NotFound("Employee not found.");

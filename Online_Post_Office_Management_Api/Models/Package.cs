@@ -10,7 +10,7 @@ namespace Online_Post_Office_Management_Api.Models
         public string Id { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]
-        public string SenderId { get; set; }
+        public string SenderId { get; set; } 
 
         [BsonRepresentation(BsonType.ObjectId)]
         public string ServiceId { get; set; }
@@ -31,15 +31,5 @@ namespace Online_Post_Office_Management_Api.Models
         public string Receiver { get; set; }
 
         public DateTime CreatedAt { get; set; }
-
-        public Customer Sender { get; set; }
-
-        public Service Service { get; set; }
-
-        public Description Description { get; set; }
-
-        public Payment Payment { get; set; }
-
-        public Delivery Delivery { get; set; }
     }
 }
