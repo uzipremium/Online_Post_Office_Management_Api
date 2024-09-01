@@ -3,7 +3,7 @@ using Online_Post_Office_Management_Api.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Online_Post_Office_Management_Api.Repositories
+namespace Online_Post_Office_Management_Api.Repositories.Impl
 {
     public class PaymentRepository : IPaymentRepository
     {

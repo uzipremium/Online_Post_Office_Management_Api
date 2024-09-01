@@ -4,6 +4,7 @@ using Online_Post_Office_Management_Api.Repositories;
 using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Data;
 using System.Reflection;
+using Online_Post_Office_Management_Api.Repositories.Impl;
 
 var builder = WebApplication.CreateBuilder(args);
 
