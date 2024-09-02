@@ -10,7 +10,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         public CustomerPackageRepository(IMongoClient mongoClient)
         {
             var database = mongoClient.GetDatabase("qwer");
-            _packages = database.GetCollection<Package>("Package");
+            _packages = database.GetCollection<Package>("Packages");
         }
 
         public async Task<Package> GetPackageByIdAsync(string packageId)

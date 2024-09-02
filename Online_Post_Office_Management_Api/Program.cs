@@ -30,6 +30,11 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IDescriptionRepository, DescriptionRepository>();
 builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
+builder.Services.AddScoped<IDescriptionRepository, DescriptionRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+//builder.Services.AddScoped<IOfficeRepository, OfficeRepository>();
+builder.Services.AddScoped<ICustomerPackageRepository, CustomerPackageRepository>();
+
 
 // Register MediatR (version 10 and above)
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
