@@ -3,7 +3,7 @@ using Online_Post_Office_Management_Api.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Online_Post_Office_Management_Api.Repositories
+namespace Online_Post_Office_Management_Api.Repositories.Impl
 {
     public class ServiceRepository : IServiceRepository
     {
@@ -24,11 +24,6 @@ namespace Online_Post_Office_Management_Api.Repositories
             return await _services.Find(_ => true).ToListAsync();
         }
 
-        public async Task<Service> GetByName(string name) 
-        {
-            return await _services.Find(service => service.Name == name).FirstOrDefaultAsync();
-        }
-
         public async Task Create(Service service)
         {
             if (string.IsNullOrEmpty(service.Id))
@@ -47,7 +42,7 @@ namespace Online_Post_Office_Management_Api.Repositories
 
         public async Task<bool> Delete(string id)
         {
-            var result = await _services.DeleteOneAsync(service => service.Id == id);
+            var result = await _services.DeleteOneAsync(s => s.Id == id);
             return result.DeletedCount > 0;
         }
     }

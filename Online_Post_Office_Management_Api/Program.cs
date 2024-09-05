@@ -32,7 +32,7 @@ builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IDescriptionRepository, DescriptionRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
-//builder.Services.AddScoped<IOfficeRepository, OfficeRepository>();
+builder.Services.AddScoped<IOfficeRepository, OfficeRepository>();
 builder.Services.AddScoped<ICustomerPackageRepository, CustomerPackageRepository>();
 
 

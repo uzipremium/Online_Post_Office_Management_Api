@@ -12,7 +12,7 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
 
         public UpdateEmployeeHandler(MongoDbService mongoDbService)
         {
-            _employees = mongoDbService.Database.GetCollection<Employee>("Employee");
+            _employees = mongoDbService.Database.GetCollection<Employee>("Employees");
         }
 
         public async Task<int> Handle(UpdateEmployee request, CancellationToken cancellationToken)
