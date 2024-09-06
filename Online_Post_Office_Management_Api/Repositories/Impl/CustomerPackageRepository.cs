@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using Online_Post_Office_Management_Api.Models;
+using System.Threading.Tasks;
 
 namespace Online_Post_Office_Management_Api.Repositories.Impl
 {
@@ -7,9 +8,8 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
     {
         private readonly IMongoCollection<Package> _packages;
 
-        public CustomerPackageRepository(IMongoClient mongoClient)
+        public CustomerPackageRepository(IMongoDatabase database)
         {
-            var database = mongoClient.GetDatabase("qwer");
             _packages = database.GetCollection<Package>("Packages");
         }
 
@@ -17,8 +17,5 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         {
             return await _packages.Find(p => p.Id == packageId).FirstOrDefaultAsync();
         }
-
-  
     }
 }
-

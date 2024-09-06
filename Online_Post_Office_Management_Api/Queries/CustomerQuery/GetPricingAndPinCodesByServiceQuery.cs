@@ -5,11 +5,13 @@ namespace Online_Post_Office_Management_Api.Queries.CustomerQueries
 {
     public class GetPricingAndPinCodesByServiceQuery : IRequest<(Service service, List<Office> offices)>
     {
-        public string ServiceName { get; set; }
+        public string ServiceId { get; set; }
+        public string OfficeId { get; set; }
 
-        public GetPricingAndPinCodesByServiceQuery(string serviceName)
+        public GetPricingAndPinCodesByServiceQuery(string serviceId, string officeId)
         {
-            ServiceName = serviceName;
+            ServiceId = serviceId;
+            OfficeId = officeId;
         }
     }
 }
