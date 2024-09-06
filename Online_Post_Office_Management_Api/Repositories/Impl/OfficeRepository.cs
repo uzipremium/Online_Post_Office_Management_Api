@@ -23,6 +23,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         {
             return await _offices.Find(_ => true).ToListAsync();
         }
+
         public async Task Create(Office office)
         {
             if (string.IsNullOrEmpty(office.Id))
@@ -46,4 +47,3 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         }
     }
 }
-

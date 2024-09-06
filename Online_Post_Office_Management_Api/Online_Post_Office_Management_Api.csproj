@@ -20,7 +20,6 @@
     <Folder Include="Handlers\DeliveryHandler\" />
     <Folder Include="Handlers\DescriptionHandler\" />
     <Folder Include="Handlers\PaymentHandler\" />
-    <Folder Include="Handlers\PackageHandler\" />
   </ItemGroup>
 
 </Project>
