@@ -28,6 +28,10 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return result.ModifiedCount > 0;
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev2
 
         public async Task<bool> Create(Payment payment)
         {
@@ -36,6 +40,9 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         }
 
     
+<<<<<<< HEAD
+=======
+>>>>>>> dev2
 =======
 >>>>>>> dev2
     }
