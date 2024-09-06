@@ -28,5 +28,16 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             var result = await _paymentCollection.ReplaceOneAsync(p => p.Id == id, payment);
             return result.ModifiedCount > 0;
         }
+<<<<<<< Updated upstream
+=======
+
+        public async Task<bool> Create(Payment payment)
+        {
+            await _paymentCollection.InsertOneAsync(payment);
+            return true;
+        }
+
+    
+>>>>>>> Stashed changes
     }
 }
