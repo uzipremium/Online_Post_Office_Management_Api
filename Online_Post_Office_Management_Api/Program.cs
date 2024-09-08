@@ -5,6 +5,8 @@ using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Data;
 using System.Reflection;
 using Online_Post_Office_Management_Api.Repositories.Impl;
+using Online_Post_Office_Management_Api.Repositories.IRepository;
+using Online_Post_Office_Management_Api.Repositories.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +32,6 @@ builder.Services.AddScoped<IMongoDatabase>(sp =>
     var mongoDbService = sp.GetRequiredService<MongoDbService>();
     return mongoDbService.Database;
 });
-
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
