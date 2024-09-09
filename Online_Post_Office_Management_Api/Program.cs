@@ -5,14 +5,12 @@ using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Data;
 using System.Reflection;
 using Online_Post_Office_Management_Api.Repositories.Impl;
-<<<<<<< HEAD
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-=======
 using Online_Post_Office_Management_Api.Repositories.IRepository;
 using Online_Post_Office_Management_Api.Repositories.Repository;
->>>>>>> ece3c284325c9fc86337948343b2781b8e6d30b7
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,10 +66,8 @@ builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IOfficeRepository, OfficeRepository>();
 builder.Services.AddScoped<ICustomerPackageRepository, CustomerPackageRepository>();
-<<<<<<< HEAD
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-=======
->>>>>>> ece3c284325c9fc86337948343b2781b8e6d30b7
+
 
 // Register MediatR (version 10 and above)
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));

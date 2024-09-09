@@ -46,10 +46,5 @@ namespace Online_Post_Office_Management_Api.Handlers.CustomerHandlers
             return (service, offices);
         }
 
-<<<<<<< HEAD
-        
-=======
-     
->>>>>>> ece3c284325c9fc86337948343b2781b8e6d30b7
     }
 }
