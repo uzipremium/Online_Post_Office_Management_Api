@@ -5,9 +5,14 @@ using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Data;
 using System.Reflection;
 using Online_Post_Office_Management_Api.Repositories.Impl;
+<<<<<<< HEAD
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+=======
+using Online_Post_Office_Management_Api.Repositories.IRepository;
+using Online_Post_Office_Management_Api.Repositories.Repository;
+>>>>>>> ece3c284325c9fc86337948343b2781b8e6d30b7
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,16 +41,23 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Register MongoDbService
 builder.Services.AddSingleton<MongoDbService>();
 
-// Register IMongoDatabase
-builder.Services.AddSingleton<IMongoDatabase>(sp =>
+// Register IMongoClient
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var mongoDbService = sp.GetRequiredService<MongoDbService>();
+    var connectionString = mongoDbService.Database.Client.Settings.Server.ToString();
+    return new MongoClient(connectionString);
+});
+
+builder.Services.AddScoped<IMongoDatabase>(sp =>
 {
     var mongoDbService = sp.GetRequiredService<MongoDbService>();
     return mongoDbService.Database;
 });
-
-// Register repositories
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
@@ -53,11 +65,13 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IDescriptionRepository, DescriptionRepository>();
 builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
-builder.Services.AddScoped<IDescriptionRepository, DescriptionRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IOfficeRepository, OfficeRepository>();
 builder.Services.AddScoped<ICustomerPackageRepository, CustomerPackageRepository>();
+<<<<<<< HEAD
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+=======
+>>>>>>> ece3c284325c9fc86337948343b2781b8e6d30b7
 
 // Register MediatR (version 10 and above)
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
