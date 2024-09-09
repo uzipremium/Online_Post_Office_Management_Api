@@ -30,5 +30,10 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return result.ModifiedCount > 0;
         }
 
+        public async Task<bool> Create(Description description)
+        {
+            await _descriptions.InsertOneAsync(description);
+            return true;
+        }
     }
 }

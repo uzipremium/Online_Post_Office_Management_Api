@@ -23,8 +23,5 @@ namespace Online_Post_Office_Management_Api.Models
 
         public DateTime DeliveryDate { get; set; }
 
-        public Office StartOffice { get; set; }
-
-        public Office EndOffice { get; set; }
     }
 }

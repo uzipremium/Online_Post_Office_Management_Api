@@ -30,5 +30,12 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return result.ModifiedCount > 0;
         }
 
+        public async Task<bool> Create(Delivery delivery)
+        {
+            await _deliveries.InsertOneAsync(delivery);
+            return true;
+        }
+
+
     }
 }
