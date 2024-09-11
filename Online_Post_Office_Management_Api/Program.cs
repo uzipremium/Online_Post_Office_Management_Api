@@ -80,10 +80,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+
+// Enable authentication
 app.UseAuthentication();
 
-app.UseHttpsRedirection();
+// Enable routing
+app.UseRouting();
+
+// Enable authorization
 app.UseAuthorization();
+
+// Map controllers
 app.MapControllers();
 
 app.Run();
