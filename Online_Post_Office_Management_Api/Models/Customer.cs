@@ -12,5 +12,7 @@ namespace Online_Post_Office_Management_Api.Models
         public string Name { get; set; }
 
         public string Phone { get; set; }
+
+        public string Email { get; set; }
     }
 }
