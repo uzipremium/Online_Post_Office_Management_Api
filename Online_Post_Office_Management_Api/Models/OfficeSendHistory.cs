@@ -15,8 +15,5 @@ namespace Online_Post_Office_Management_Api.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string OfficeId { get; set; }
 
-        public ReceiveHistory ReceiveHistory { get; set; }
-
-        public Office Office { get; set; }
     }
 }

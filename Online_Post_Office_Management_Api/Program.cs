@@ -8,7 +8,7 @@ using Online_Post_Office_Management_Api.Repositories.Impl;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Online_Post_Office_Management_Api.Repositories.Repository;
+using Online_Post_Office_Management_Api.Repositories.IRepository;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,8 +66,9 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IOfficeRepository, OfficeRepository>();
 builder.Services.AddScoped<ICustomerPackageRepository, CustomerPackageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
-
+builder.Services.AddScoped<ICustomerSendHistoryRepository,CustomerSendHistoryRepository>();
+builder.Services.AddScoped<IOfficeSendHistoryRepository,OfficeSendHistoryRepository>();
+builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
 // Register MediatR (version 10 and above)
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
 
