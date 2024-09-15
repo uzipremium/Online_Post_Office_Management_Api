@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Commands.PackageCommand;
 using Online_Post_Office_Management_Api.Queries.PackageQuery;
 using Online_Post_Office_Management_Api.Models;
@@ -10,6 +11,7 @@ namespace Online_Post_Office_Management_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Employee")] 
     public class PackageController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -65,6 +67,5 @@ namespace Online_Post_Office_Management_Api.Controllers
 
             return NotFound("Package not found.");
         }
-
     }
 }

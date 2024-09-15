@@ -31,7 +31,7 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
             if (account == null || role == null)
             {
                 Console.WriteLine("Invalid credentials.");
-                return null; // Trả về null nếu tài khoản hoặc vai trò không tồn tại
+                return null; 
             }
 
             // Create JWT Token
@@ -42,7 +42,7 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, account.Username),
-                    new Claim(ClaimTypes.Role, role.RoleName) // Sử dụng RoleName từ Role
+                    new Claim(ClaimTypes.Role, role.RoleName) 
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -54,7 +54,7 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
             return new LoginResponse
             {
                 Username = account.Username,
-                RoleName = role.RoleName, // Trả về RoleName từ Role
+                RoleName = role.RoleName, 
                 Token = tokenString
             };
         }
