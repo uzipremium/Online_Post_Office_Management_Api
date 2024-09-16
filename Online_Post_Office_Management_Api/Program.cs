@@ -97,6 +97,7 @@ if (app.Environment.IsDevelopment())
 }
 
 
+
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAngularApp");
@@ -108,6 +109,20 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+app.UseHttpsRedirection();
+
+// Enable authentication
+app.UseAuthentication();
+
+// Enable routing
+app.UseRouting();
+
+// Enable authorization
+app.UseAuthorization();
+
+// Map controllers
 
 app.MapControllers();
 
