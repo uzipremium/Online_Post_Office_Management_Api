@@ -68,8 +68,22 @@ builder.Services.AddScoped<ICustomerPackageRepository, CustomerPackageRepository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
+
 // Register MediatR (version 10 and above)
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
+
 
 var app = builder.Build();
 
@@ -80,6 +94,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+<<<<<<< Updated upstream
+=======
+app.UseHttpsRedirection();
+
+app.UseCors("AllowAngularApp");
+
+// Enable authentication
+>>>>>>> Stashed changes
 app.UseAuthentication();
 
 app.UseHttpsRedirection();
