@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Commands.DeliveryCommand;
 using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Queries.Deliveries;
+using System.Threading.Tasks;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
@@ -29,6 +31,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             return Ok(delivery);
         }
 
+        [Authorize(Roles = "Admin, Employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateDelivery(string id, [FromBody] UpdateDelivery command)
         {
@@ -46,6 +49,5 @@ namespace Online_Post_Office_Management_Api.Controllers
 
             return NotFound("Delivery not found.");
         }
-
     }
 }

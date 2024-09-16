@@ -8,33 +8,31 @@ using Online_Post_Office_Management_Api.Repositories.Impl;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Online_Post_Office_Management_Api.Repositories.Repository;
-
+using Online_Post_Office_Management_Api.Repositories.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// key JWT
+// Configure JWT key and authentication
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 
-// JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = false,
-            ValidateAudience = false
-        };
-    });
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true
+    };
+});
 
-
-// Add services to the container.
+// Register services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -46,15 +44,17 @@ builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var mongoDbService = sp.GetRequiredService<MongoDbService>();
-    var connectionString = mongoDbService.Database.Client.Settings.Server.ToString();
-    return new MongoClient(connectionString);
+    return new MongoClient(mongoDbService.Database.Client.Settings.ToString());
 });
 
+// Register IMongoDatabase
 builder.Services.AddScoped<IMongoDatabase>(sp =>
 {
     var mongoDbService = sp.GetRequiredService<MongoDbService>();
     return mongoDbService.Database;
 });
+
+// Register repositories
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
@@ -66,8 +66,11 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IOfficeRepository, OfficeRepository>();
 builder.Services.AddScoped<ICustomerPackageRepository, CustomerPackageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
+builder.Services.AddScoped<ICustomerSendHistoryRepository, CustomerSendHistoryRepository>();
+builder.Services.AddScoped<IOfficeSendHistoryRepository, OfficeSendHistoryRepository>();
+builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
 
+<<<<<<< HEAD
 
 builder.Services.AddCors(options =>
 {
@@ -82,18 +85,22 @@ builder.Services.AddCors(options =>
 
 
 // Register MediatR (version 10 and above)
+=======
+// Register MediatR
+>>>>>>> 0f5b340a08f5698dbfb2d84510a93b2cf7347163
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
 app.UseHttpsRedirection();
@@ -104,8 +111,13 @@ app.UseCors("AllowAngularApp");
 >>>>>>> Stashed changes
 app.UseAuthentication();
 
+=======
+>>>>>>> 0f5b340a08f5698dbfb2d84510a93b2cf7347163
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

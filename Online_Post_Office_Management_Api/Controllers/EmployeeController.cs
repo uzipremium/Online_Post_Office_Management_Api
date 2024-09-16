@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Queries.EmployeeQuery;
@@ -17,6 +18,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<List<Employee>>> GetAllEmployees()
         {
@@ -24,6 +26,8 @@ namespace Online_Post_Office_Management_Api.Controllers
             return Ok(employees);
         }
 
+
+        [Authorize(Roles = "Admin, Employee")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmployeeById(string id)
         {
@@ -31,6 +35,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             return employee is not null ? Ok(employee) : NotFound();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Employee>> CreateEmployeeWithAccount([FromBody] CreateEmployeeAndAccount command)
         {
@@ -43,6 +48,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
         }
 
+        [Authorize(Roles = "Admin, Employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateEmployee(string id, [FromBody] UpdateEmployee command)
         {
@@ -61,6 +67,8 @@ namespace Online_Post_Office_Management_Api.Controllers
             return NotFound("Employee not found.");
         }
 
+       
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteEmployee(string id)
         {
