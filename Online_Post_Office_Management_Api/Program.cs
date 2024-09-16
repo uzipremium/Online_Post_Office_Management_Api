@@ -70,7 +70,7 @@ builder.Services.AddScoped<ICustomerSendHistoryRepository, CustomerSendHistoryRe
 builder.Services.AddScoped<IOfficeSendHistoryRepository, OfficeSendHistoryRepository>();
 builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
 
-<<<<<<< HEAD
+
 
 builder.Services.AddCors(options =>
 {
@@ -84,10 +84,6 @@ builder.Services.AddCors(options =>
 });
 
 
-// Register MediatR (version 10 and above)
-=======
-// Register MediatR
->>>>>>> 0f5b340a08f5698dbfb2d84510a93b2cf7347163
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
 
 
@@ -100,19 +96,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
+
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAngularApp");
 
-// Enable authentication
->>>>>>> Stashed changes
+
 app.UseAuthentication();
 
-=======
->>>>>>> 0f5b340a08f5698dbfb2d84510a93b2cf7347163
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
