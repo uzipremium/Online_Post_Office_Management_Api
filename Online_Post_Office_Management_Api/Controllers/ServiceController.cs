@@ -41,7 +41,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         }
 
         // API để tạo một dịch vụ mới - Chỉ Admin được phép
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult> CreateService([FromBody] Service service)
         {
@@ -55,7 +55,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         }
 
         // API để cập nhật một dịch vụ dựa trên ID - Chỉ Admin được phép
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateService(string id, [FromBody] Service service)
         {
@@ -74,7 +74,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         }
 
         // API để xóa một dịch vụ dựa trên ID - Chỉ Admin được phép
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteService(string id)
         {

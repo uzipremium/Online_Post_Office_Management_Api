@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
-using Online_Post_Office_Management_Api.Models;
+using Online_Post_Office_Management_Api.DTO;
 using Online_Post_Office_Management_Api.Queries.EmployeeQuery;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
@@ -18,26 +20,23 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-        
         [HttpGet]
-        public async Task<ActionResult<List<Employee>>> GetAllEmployees()
+        public async Task<ActionResult<List<EmployeeWithOfficeDto>>> GetAllEmployees()
         {
             var employees = await _mediator.Send(new EmployeeGetAll());
             return Ok(employees);
         }
 
-
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "admin, employee")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetEmployeeById(string id)
+        public async Task<ActionResult<EmployeeWithOfficeDto>> GetEmployeeById(string id)
         {
             var employee = await _mediator.Send(new EmployeeGetOne(id));
             return employee is not null ? Ok(employee) : NotFound();
         }
 
-     
         [HttpPost]
-        public async Task<ActionResult<Employee>> CreateEmployeeWithAccount([FromBody] CreateEmployeeAndAccount command)
+        public async Task<ActionResult<EmployeeWithOfficeDto>> CreateEmployeeWithAccount([FromBody] CreateEmployeeAndAccount command)
         {
             if (command == null)
             {
@@ -48,27 +47,23 @@ namespace Online_Post_Office_Management_Api.Controllers
             return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
         }
 
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "admin, employee")]
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateEmployee(string id, [FromBody] UpdateEmployee command)
+        public async Task<ActionResult<EmployeeWithOfficeDto>> UpdateEmployee(string id, [FromBody] UpdateEmployee command)
         {
-            if (id != command.Id)
+            command.Id = id;
+
+            var updatedEmployee = await _mediator.Send(command);
+
+            if (updatedEmployee != null)
             {
-                return BadRequest("Employee ID mismatch.");
+                return Ok(updatedEmployee); // Trả về đối tượng đã cập nhật
             }
 
-            var result = await _mediator.Send(command);
-
-            if (result > 0)
-            {
-                return Ok("Employee updated successfully.");
-            }
-
-            return NotFound("Employee not found.");
+            return NotFound("Employee not found."); // Nếu không tìm thấy nhân viên
         }
 
-       
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteEmployee(string id)
         {

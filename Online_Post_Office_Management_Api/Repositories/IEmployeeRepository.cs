@@ -1,15 +1,14 @@
-﻿using Online_Post_Office_Management_Api.Models;
+﻿using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
+using Online_Post_Office_Management_Api.DTO;
+using Online_Post_Office_Management_Api.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Online_Post_Office_Management_Api.Repositories
+public interface IEmployeeRepository
 {
-    public interface IEmployeeRepository
-    {
-        Task Create(Employee employee);
-        Task<Employee> GetById(string id);
-        Task<IEnumerable<Employee>> GetAll();
-        Task<bool> Update(string id, Employee employee);
-        Task<bool> Delete(string id);
-    }
+    Task<IEnumerable<EmployeeWithOfficeDto>> GetAll();
+    Task<EmployeeWithOfficeDto> GetById(string id);
+    Task Create(Employee employee);
+    Task<EmployeeWithOfficeDto> Update(string id, UpdateEmployee request); 
+    Task<bool> Delete(string id);
 }

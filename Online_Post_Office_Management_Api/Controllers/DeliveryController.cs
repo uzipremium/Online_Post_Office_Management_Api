@@ -19,7 +19,6 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-        // GET: api/Delivery/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Delivery>> GetDeliveryById(string id)
         {
@@ -31,7 +30,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             return Ok(delivery);
         }
 
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "admin, employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateDelivery(string id, [FromBody] UpdateDelivery command)
         {

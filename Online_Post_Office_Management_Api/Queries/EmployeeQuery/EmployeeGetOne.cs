@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Online_Post_Office_Management_Api.Models;
-using System.Collections.Generic;
+using Online_Post_Office_Management_Api.DTO;
 
 namespace Online_Post_Office_Management_Api.Queries.EmployeeQuery
 {
-    public class EmployeeGetOne : IRequest<Employee>
+    public class EmployeeGetOne : IRequest<EmployeeWithOfficeDto>
     {
         public string Id { get; set; }
 

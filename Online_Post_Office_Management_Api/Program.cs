@@ -82,21 +82,7 @@ builder.Services.AddScoped<IOfficeSendHistoryRepository, OfficeSendHistoryReposi
 builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
 builder.Services.AddScoped<IPricingServiceRepository, PricingServiceRepository>();
 
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularApp",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:4200")
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
-        });
-});
-
-
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
-
 
 var app = builder.Build();
 
@@ -107,35 +93,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAngularApp");
 
-
-app.UseAuthentication();
-
-app.UseHttpsRedirection();
-
-app.UseCors("AllowAngularApp");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-
-app.UseHttpsRedirection();
-
-// Enable authentication
-app.UseAuthentication();
-
-// Enable routing
-app.UseRouting();
-
-// Enable authorization
-app.UseAuthorization();
-
-// Map controllers
+app.UseAuthentication(); // Ensure that the authentication middleware is called
+app.UseAuthorization(); // Ensure that the authorization middleware is called
 
 app.MapControllers();
 
