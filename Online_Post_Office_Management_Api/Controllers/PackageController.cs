@@ -11,7 +11,11 @@ namespace Online_Post_Office_Management_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+<<<<<<< HEAD
     [Authorize(Roles = "admin, employee")] 
+=======
+    //[Authorize(Roles = "Admin, Employee")]
+>>>>>>> dev2
     public class PackageController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,18 +27,33 @@ namespace Online_Post_Office_Management_Api.Controllers
 
         // GET: api/Package
         [HttpGet]
-        public async Task<ActionResult<List<Package>>> GetAllPackages()
+        [HttpGet]
+        public async Task<IActionResult> GetPackages([FromQuery] int pageNumber = 1, [FromQuery] string officeId = null, [FromQuery] DateTime? startDate = null, [FromQuery] string paymentStatus = null)
         {
-            var packages = await _mediator.Send(new PackageGetAll());
+            var query = new GetAllPackagesQuery
+            {
+                PageNumber = pageNumber,
+                OfficeId = officeId,
+                StartDate = startDate,
+                PaymentStatus = paymentStatus
+            };
+
+            var packages = await _mediator.Send(query);
             return Ok(packages);
         }
 
+
         // GET: api/Package/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Package>> GetPackageById(string id)
+        public async Task<IActionResult> GetPackageById(string id)
         {
-            var package = await _mediator.Send(new PackageGetOne(id));
-            return package is not null ? Ok(package) : NotFound();
+            var package = await _mediator.Send(new GetPackageByIdQuery { Id = id });
+            if (package == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(package);
         }
 
         // POST: api/Package
