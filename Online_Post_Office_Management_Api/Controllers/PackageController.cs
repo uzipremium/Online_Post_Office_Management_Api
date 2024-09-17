@@ -11,11 +11,8 @@ namespace Online_Post_Office_Management_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-<<<<<<< HEAD
     [Authorize(Roles = "admin, employee")] 
-=======
-    //[Authorize(Roles = "Admin, Employee")]
->>>>>>> dev2
+
     public class PackageController : ControllerBase
     {
         private readonly IMediator _mediator;
