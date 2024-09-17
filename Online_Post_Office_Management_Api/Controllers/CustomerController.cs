@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Online_Post_Office_Management_Api.DTO.Response;
 using Online_Post_Office_Management_Api.Models;
-using Online_Post_Office_Management_Api.Queries.CustomerQueries;
 using Online_Post_Office_Management_Api.Queries.CustomerQuery;
 using System.Threading.Tasks;
 
@@ -37,29 +37,44 @@ namespace Online_Post_Office_Management_Api.Controllers
             return Ok(package);
         }
 
-        [HttpGet("GetPricingAndPinCodes")]
-        public async Task<ActionResult> GetPricingAndPinCodesByService([FromQuery] string serviceId, [FromQuery] string officeId)
+        // Get Pricing
+        [HttpGet("GetPricing")]
+        public async Task<ActionResult<decimal>> GetPricing([FromQuery] string serviceType, [FromQuery] double weight, [FromQuery] double distance)
         {
-            if (string.IsNullOrEmpty(serviceId))
+            if (string.IsNullOrEmpty(serviceType) || weight <= 0 || distance <= 0)
             {
-                return BadRequest("Service ID is required.");
+                return BadRequest("Service type, weight, and distance are required.");
             }
 
-            var query = new GetPricingAndPinCodesByServiceQuery(serviceId, officeId);
-            var result = await _mediator.Send(query);
+            var query = new GetPricingQuery(serviceType, weight, distance);
+            var price = await _mediator.Send(query);
 
-            if (result.Item1 == null)
+            if (price == 0)
             {
-                return NotFound("Service not found.");
+                return NotFound("Pricing information could not be retrieved.");
             }
 
-            if (result.Item2 == null || !result.Item2.Any())
-            {
-                return NotFound("No offices found for the specified service.");
-            }
-
-            return Ok(result);
+            return Ok(price);
         }
 
+        // Get Pincode
+        [HttpGet("GetPincode")]
+        public async Task<ActionResult<PincodeResponse>> GetPincode([FromQuery] string location)
+        {
+            if (string.IsNullOrEmpty(location))
+            {
+                return BadRequest("Location is required.");
+            }
+
+            var query = new GetPincodeQuery(location);
+            var pincode = await _mediator.Send(query);
+
+            if (pincode == null)
+            {
+                return NotFound("Pincode not found for the specified location.");
+            }
+
+            return Ok(pincode);
+        }
     }
 }
