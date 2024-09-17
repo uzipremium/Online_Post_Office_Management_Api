@@ -8,12 +8,11 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
     public class EmployeeRepository : IEmployeeRepository
     {
         private readonly IMongoCollection<Employee> _employees;
-        private readonly IHistoryRepository _historyRepository;
 
-        public EmployeeRepository(IMongoDatabase database, IHistoryRepository historyRepository)
+        public EmployeeRepository(IMongoDatabase database)
         {
             _employees = database.GetCollection<Employee>("Employees");
-            _historyRepository = historyRepository;
+
         }
 
         public async Task Create(Employee employee)
@@ -44,7 +43,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
             if (result.ModifiedCount > 0)
             {
-                await LogHistory(existingEmployee, updatedEmployee, "CurrentUserId"); 
+       
                 return true;
             }
 
@@ -57,43 +56,6 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return result.DeletedCount > 0;
         }
 
-        private async Task LogHistory(Employee oldEmployee, Employee newEmployee, string currentUserId)
-        {
-            var changes = new List<History>();
 
-            if (oldEmployee.Name != newEmployee.Name)
-            {
-                changes.Add(new History
-                {
-                    EmployeeId = newEmployee.Id,
-                    FieldName = "Name",
-                    OldValue = oldEmployee.Name,
-                    NewValue = newEmployee.Name,
-                    ChangeDate = DateTime.UtcNow,
-                    ChangedBy = currentUserId
-                });
-            }
-
-            if (oldEmployee.Email != newEmployee.Email)
-            {
-                changes.Add(new History
-                {
-                    EmployeeId = newEmployee.Id,
-                    FieldName = "Email",
-                    OldValue = oldEmployee.Email,
-                    NewValue = newEmployee.Email,
-                    ChangeDate = DateTime.UtcNow,
-                    ChangedBy = currentUserId
-                });
-            }
-
-            if (changes.Count > 0)
-            {
-                foreach (var history in changes)
-                {
-                    await _historyRepository.Create(history);
-                }
-            }
-        }
     }
 }

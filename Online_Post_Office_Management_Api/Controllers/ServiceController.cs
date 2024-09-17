@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -39,7 +40,8 @@ namespace Online_Post_Office_Management_Api.Controllers
             return Ok(services);
         }
 
-        // API để tạo một dịch vụ mới
+        // API để tạo một dịch vụ mới - Chỉ Admin được phép
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> CreateService([FromBody] Service service)
         {
@@ -52,7 +54,8 @@ namespace Online_Post_Office_Management_Api.Controllers
             return CreatedAtAction(nameof(GetService), new { id = service.Id }, service);
         }
 
-        // API để cập nhật một dịch vụ dựa trên ID
+        // API để cập nhật một dịch vụ dựa trên ID - Chỉ Admin được phép
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateService(string id, [FromBody] Service service)
         {
@@ -70,7 +73,8 @@ namespace Online_Post_Office_Management_Api.Controllers
             return NotFound("Service not found.");
         }
 
-        // API để xóa một dịch vụ dựa trên ID
+        // API để xóa một dịch vụ dựa trên ID - Chỉ Admin được phép
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteService(string id)
         {

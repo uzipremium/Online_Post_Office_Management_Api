@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Commands.PaymentCommand;
 using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Queries.PaymentQuery;
@@ -19,7 +20,6 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Payment>> GetPaymentById(string id)
         {
@@ -32,7 +32,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         }
 
 
-        // PUT: api/Payment/{id}
+        [Authorize(Roles = "Admin, Employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdatePayment(string id, [FromBody] UpdatePayment command)
         {
@@ -50,7 +50,5 @@ namespace Online_Post_Office_Management_Api.Controllers
 
             return NotFound("Payment not found.");
         }
-
-     
     }
 }
