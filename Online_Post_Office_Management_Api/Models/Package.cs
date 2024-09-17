@@ -9,8 +9,10 @@ namespace Online_Post_Office_Management_Api.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-        public string? SenderId { get; set; } 
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? SenderId { get; set; }
 
+        [BsonRepresentation(BsonType.ObjectId)]
         public string? OfficeId { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]

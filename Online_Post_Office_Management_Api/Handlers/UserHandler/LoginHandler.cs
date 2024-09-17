@@ -41,8 +41,9 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
+                    new Claim(ClaimTypes.NameIdentifier, account.Id),
                     new Claim(ClaimTypes.Name, account.Username),
-                    new Claim(ClaimTypes.Role, role.RoleName) 
+                    new Claim(ClaimTypes.Role, role.RoleName)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

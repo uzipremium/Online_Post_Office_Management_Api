@@ -9,5 +9,6 @@ namespace Online_Post_Office_Management_Api.Repositories
     public interface ICustomerPackageRepository
     {
         Task<Package> GetPackageByIdAsync(string packageId);
+        Task<Customer> GetById(string customerId);
     }
 }
