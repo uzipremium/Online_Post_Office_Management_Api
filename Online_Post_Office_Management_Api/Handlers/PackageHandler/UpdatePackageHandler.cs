@@ -15,7 +15,7 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
 
         public async Task<bool> Handle(UpdatePackage request, CancellationToken cancellationToken)
         {
-            var package = await _packageRepository.GetById(request.Id);
+            var package = await _packageRepository.GetPackageById(request.Id);
             if (package == null)
             {
                 return false;

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Online_Post_Office_Management_Api.Models;
+using Online_Post_Office_Management_Api.DTO.Response;
 using Online_Post_Office_Management_Api.Queries.PackageQuery;
 using Online_Post_Office_Management_Api.Repositories;
 using System.Threading;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
 {
-    public class GetOnePackageHandler : IRequestHandler<PackageGetOne, Package>
+    public class GetOnePackageHandler : IRequestHandler<GetPackageByIdQuery, PackageResponse>
     {
         private readonly IPackageRepository _packageRepository;
 
@@ -16,10 +16,10 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
             _packageRepository = packageRepository;
         }
 
-        public async Task<Package> Handle(PackageGetOne request, CancellationToken cancellationToken)
+        public async Task<PackageResponse> Handle(GetPackageByIdQuery request, CancellationToken cancellationToken)
         {
-            var package = await _packageRepository.GetById(request.Id);
-            return package;
+            var packageResponse = await _packageRepository.GetById(request.Id);
+            return packageResponse;
         }
     }
 }

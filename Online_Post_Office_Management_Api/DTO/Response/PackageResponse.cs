@@ -4,6 +4,7 @@
     {
         public string Id { get; set; }
         public string SenderName { get; set; }
+        public string OfficeId { get; set; }
         public string OfficeName { get; set; }
         public string ServiceName { get; set; }
         public decimal Weight { get; set; }
