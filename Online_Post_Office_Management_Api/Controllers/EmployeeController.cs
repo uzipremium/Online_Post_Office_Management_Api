@@ -18,7 +18,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Roles = "Admin")]
+        
         [HttpGet]
         public async Task<ActionResult<List<Employee>>> GetAllEmployees()
         {
@@ -35,7 +35,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             return employee is not null ? Ok(employee) : NotFound();
         }
 
-        [Authorize(Roles = "Admin")]
+     
         [HttpPost]
         public async Task<ActionResult<Employee>> CreateEmployeeWithAccount([FromBody] CreateEmployeeAndAccount command)
         {

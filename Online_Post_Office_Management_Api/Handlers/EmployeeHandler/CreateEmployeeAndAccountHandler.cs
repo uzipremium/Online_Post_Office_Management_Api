@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using Online_Post_Office_Management_Api.Repositories;
 using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
-using Online_Post_Office_Management_Api.Models; 
+using Online_Post_Office_Management_Api.Models;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +28,15 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
             account.Id = ObjectId.GenerateNewId().ToString();
             employee.Id = ObjectId.GenerateNewId().ToString();
             employee.AccountId = account.Id;
+
+            // Set default role if not provided
+            if (string.IsNullOrEmpty(account.RoleId))
+            {
+                account.RoleId = "66ded343a0d268760bc80984"; // Default role ID
+            }
+
+            // Set created date to current date/time
+            employee.CreatedDate = DateTime.UtcNow;
 
             // Create Account
             await _accountRepository.Create(account);
