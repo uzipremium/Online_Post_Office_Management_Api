@@ -69,7 +69,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICustomerSendHistoryRepository, CustomerSendHistoryRepository>();
 builder.Services.AddScoped<IOfficeSendHistoryRepository, OfficeSendHistoryRepository>();
 builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
-
+builder.Services.AddScoped<IPricingServiceRepository, PricingServiceRepository>();
 
 
 builder.Services.AddCors(options =>

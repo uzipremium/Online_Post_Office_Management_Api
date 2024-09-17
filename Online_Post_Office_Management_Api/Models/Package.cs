@@ -17,6 +17,7 @@ namespace Online_Post_Office_Management_Api.Models
         public string ServiceId { get; set; }
 
         public decimal Weight { get; set; }
+        public decimal Distance { get; set; }
 
         public string DeliveryNumber { get; set; }
 
