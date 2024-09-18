@@ -9,6 +9,11 @@ namespace Online_Post_Office_Management_Api.Repositories
         Task<Delivery> GetById(string id);
         Task<IEnumerable<Delivery>> GetAll();
         Task<bool> Update(string id, Delivery delivery);
+<<<<<<< HEAD
         Task<bool> Create(Delivery delivery);
     }
 }
+=======
+    }
+}
+>>>>>>> 6184879bd73e25d12d9964bf5074c8e28e2afa0a

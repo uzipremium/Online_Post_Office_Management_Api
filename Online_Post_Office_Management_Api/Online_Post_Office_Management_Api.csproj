@@ -19,6 +19,11 @@
 
   <ItemGroup>
     <Folder Include="Handlers\AccountHandler\" />
+<<<<<<< HEAD
+=======
+    <Folder Include="Handlers\CustomerHandler\" />
+    <Folder Include="Handlers\DeliveryHandler\" />
+>>>>>>> 6184879bd73e25d12d9964bf5074c8e28e2afa0a
     <Folder Include="Handlers\DescriptionHandler\" />
   </ItemGroup>
 
