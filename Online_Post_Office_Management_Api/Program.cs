@@ -82,10 +82,12 @@ builder.Services.AddScoped<IOfficeSendHistoryRepository, OfficeSendHistoryReposi
 builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
 builder.Services.AddScoped<IPricingServiceRepository, PricingServiceRepository>();
 
+<<<<<<< HEAD
 
 // Add MediatR
+=======
+>>>>>>> c9215814e156360ca90c8c572e09052e651ac29b
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
-
 
 var app = builder.Build();
 
@@ -96,13 +98,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c9215814e156360ca90c8c572e09052e651ac29b
 app.UseHttpsRedirection();
 
 
 // Apply CORS policy
 app.UseCors("AllowAll");
 
+<<<<<<< HEAD
 
 // Enable authentication and authorization
 app.UseAuthentication();
@@ -115,6 +121,10 @@ app.UseRouting();
 
 
 // Map controllers
+=======
+app.UseAuthentication(); // Ensure that the authentication middleware is called
+app.UseAuthorization(); // Ensure that the authorization middleware is called
+>>>>>>> c9215814e156360ca90c8c572e09052e651ac29b
 
 app.MapControllers();
 

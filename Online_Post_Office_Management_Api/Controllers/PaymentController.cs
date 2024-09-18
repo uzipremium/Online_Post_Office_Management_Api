@@ -32,7 +32,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "admin, employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdatePayment(string id, [FromBody] UpdatePayment command)
         {
