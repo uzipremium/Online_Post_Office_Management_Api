@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http.HttpResults;
 using MongoDB.Bson;
 using Online_Post_Office_Management_Api.Commands.PackageCommand;
 using Online_Post_Office_Management_Api.Models;
@@ -41,26 +42,32 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
             var description = request.Description;
             var delivery = request.Delivery;
 
-            // Tạo ID cho từng entity nếu chưa được cung cấp
-            package.Id = ObjectId.GenerateNewId().ToString();
-            payment.Id = ObjectId.GenerateNewId().ToString();
-            description.Id = ObjectId.GenerateNewId().ToString();
-            delivery.Id = ObjectId.GenerateNewId().ToString();
+            // Check and handle ObjectId fields if they are empty strings or invalid
+            package.Id = string.IsNullOrEmpty(package.Id) ? ObjectId.GenerateNewId().ToString() : package.Id;
+            payment.Id = string.IsNullOrEmpty(payment.Id) ? ObjectId.GenerateNewId().ToString() : payment.Id;
+            description.Id = string.IsNullOrEmpty(description.Id) ? ObjectId.GenerateNewId().ToString() : description.Id;
+            delivery.Id = string.IsNullOrEmpty(delivery.Id) ? ObjectId.GenerateNewId().ToString() : delivery.Id;
 
-            // Lưu Payment, Description, và Delivery
-            await _paymentRepository.Create(payment);
-            await _descriptionRepository.Create(description);
-            await _deliveryRepository.Create(delivery);
+            // If SenderId or OfficeId is an empty string, assign null
+            package.SenderId = string.IsNullOrEmpty(package.SenderId) ? null : package.SenderId;
+            package.OfficeId = string.IsNullOrEmpty(package.OfficeId) ? null : package.OfficeId;
 
-            // Liên kết ID đến Package
+            // Save Payment, Description, and Delivery in parallel
+            await Task.WhenAll(
+                _paymentRepository.Create(payment),
+                _descriptionRepository.Create(description),
+                _deliveryRepository.Create(delivery)
+            );
+
+            // Link IDs to Package
             package.PaymentId = payment.Id;
             package.DescriptionId = description.Id;
             package.DeliveryId = delivery.Id;
 
-            // Lưu Package
+            // Save Package
             await _packageRepository.Create(package);
 
-            // Tạo CustomerSendHistory nếu SenderId không null
+            // Create CustomerSendHistory if SenderId is valid
             if (!string.IsNullOrEmpty(package.SenderId))
             {
                 var customerSendHistory = new CustomerSendHistory
@@ -72,7 +79,7 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
                 await _customerSendHistoryRepository.Create(customerSendHistory);
             }
 
-            // Tạo OfficeSendHistory nếu OfficeId không null
+            // Create OfficeSendHistory if OfficeId is valid
             if (!string.IsNullOrEmpty(package.OfficeId))
             {
                 var officeSendHistory = new OfficeSendHistory

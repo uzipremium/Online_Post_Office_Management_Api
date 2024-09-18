@@ -24,7 +24,6 @@ namespace Online_Post_Office_Management_Api.Controllers
 
         // GET: api/Package
         [HttpGet]
-        [HttpGet]
         public async Task<IActionResult> GetPackages([FromQuery] int pageNumber = 1, [FromQuery] string officeId = null, [FromQuery] DateTime? startDate = null, [FromQuery] string paymentStatus = null)
         {
             var query = new GetAllPackagesQuery
