@@ -34,10 +34,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularApp",
+    options.AddPolicy("AllowAll",
         builder =>
         {
-            builder.WithOrigins("http://localhost:4200")
+            builder.AllowAnyOrigin()
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });
@@ -83,18 +83,7 @@ builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>(
 builder.Services.AddScoped<IPricingServiceRepository, PricingServiceRepository>();
 
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularApp",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:4200")
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
-        });
-});
-
-
+// Add MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
 
 
@@ -108,32 +97,22 @@ if (app.Environment.IsDevelopment())
 }
 
 
-
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAngularApp");
+
+// Apply CORS policy
+app.UseCors("AllowAll");
 
 
-app.UseAuthentication();
-
-app.UseHttpsRedirection();
-
-app.UseCors("AllowAngularApp");
-
+// Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 
-app.UseHttpsRedirection();
-
-// Enable authentication
-app.UseAuthentication();
 
 // Enable routing
 app.UseRouting();
 
-// Enable authorization
-app.UseAuthorization();
 
 // Map controllers
 
