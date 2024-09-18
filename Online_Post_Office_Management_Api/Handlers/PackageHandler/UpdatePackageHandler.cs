@@ -22,9 +22,10 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
             }
 
             package.Weight = (decimal)request.Weight;
+            package.Distance = (decimal)request.Distance;
             package.DeliveryNumber = request.DeliveryNumber;
             package.Receiver = request.Receiver;
-
+            
             return await _packageRepository.Update(request.Id, package);
         }
     }
