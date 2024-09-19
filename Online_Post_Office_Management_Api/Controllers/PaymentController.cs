@@ -31,7 +31,6 @@ namespace Online_Post_Office_Management_Api.Controllers
             return Ok(payment);
         }
 
-
         [Authorize(Roles = "admin, employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdatePayment(string id, [FromBody] UpdatePayment command)
@@ -49,6 +48,13 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
 
             return NotFound("Payment not found.");
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<Payment>>> GetAllPayments([FromQuery] PaymentGetAll query)
+        {
+            var payments = await _mediator.Send(query);
+            return Ok(payments);
         }
     }
 }

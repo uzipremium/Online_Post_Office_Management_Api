@@ -17,9 +17,28 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return await _paymentCollection.Find(payment => payment.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Payment>> GetAll()
+        public async Task<IEnumerable<Payment>> GetAll(int pageNumber, int pageSize, string paymentStatus, DateTime? startDate)
         {
-            return await _paymentCollection.Find(_ => true).ToListAsync();
+            // Xây dựng filter
+            var filterBuilder = Builders<Payment>.Filter;
+            var filter = filterBuilder.Empty;
+
+            if (!string.IsNullOrEmpty(paymentStatus))
+            {
+                filter &= filterBuilder.Eq(p => p.Status, paymentStatus);
+            }
+
+            if (startDate.HasValue)
+            {
+                filter &= filterBuilder.Gte(p => p.TransactionTime, startDate.Value);
+            }
+
+            // Tính toán phân trang
+            return await _paymentCollection
+                .Find(filter)
+                .Skip((pageNumber - 1) * pageSize)
+                .Limit(pageSize)
+                .ToListAsync();
         }
 
         public async Task<bool> Update(string id, Payment payment)
@@ -33,7 +52,5 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             await _paymentCollection.InsertOneAsync(payment);
             return true;
         }
-
-    
     }
 }

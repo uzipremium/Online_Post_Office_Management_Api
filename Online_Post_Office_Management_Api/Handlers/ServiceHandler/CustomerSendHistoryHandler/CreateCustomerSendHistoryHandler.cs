@@ -6,7 +6,7 @@ using Online_Post_Office_Management_Api.Repositories.IRepository;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Online_Post_Office_Management_Api.Handlers.CustomerSendHistoryHandler
+namespace Online_Post_Office_Management_Api.Handlers.ServiceHandler.CustomerSendHistoryHandler
 {
     public class CreateCustomerSendHistoryHandler : IRequestHandler<CreateCustomerSendHistory, CustomerSendHistory>
     {
