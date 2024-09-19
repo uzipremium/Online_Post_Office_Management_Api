@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Handlers\AccountHandler\" />
     <Folder Include="Handlers\DescriptionHandler\" />
   </ItemGroup>
 

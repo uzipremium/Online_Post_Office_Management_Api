@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using MongoDB.Driver;
 using Online_Post_Office_Management_Api.Repositories;
 using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
@@ -35,9 +35,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        builder =>
+        policyBuilder =>
         {
-            builder.AllowAnyOrigin()
+            policyBuilder.AllowAnyOrigin()
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });
@@ -55,11 +55,11 @@ builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var mongoDbService = sp.GetRequiredService<MongoDbService>();
-    return new MongoClient(mongoDbService.Database.Client.Settings.ToString());
+    return new MongoClient(mongoDbService.Database.Client.Settings); // Điều chỉnh cách lấy cấu hình
 });
 
 // Register IMongoDatabase
-builder.Services.AddScoped<IMongoDatabase>(sp =>
+builder.Services.AddScoped(sp =>
 {
     var mongoDbService = sp.GetRequiredService<MongoDbService>();
     return mongoDbService.Database;
@@ -82,10 +82,8 @@ builder.Services.AddScoped<IOfficeSendHistoryRepository, OfficeSendHistoryReposi
 builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
 builder.Services.AddScoped<IPricingServiceRepository, PricingServiceRepository>();
 
-
 // Add MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
-
 
 var app = builder.Build();
 
@@ -96,26 +94,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 
+// Enable routing
+app.UseRouting();
 
 // Apply CORS policy
 app.UseCors("AllowAll");
-
 
 // Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-
-// Enable routing
-app.UseRouting();
-
-
 // Map controllers
-
 app.MapControllers();
 
 app.Run();
