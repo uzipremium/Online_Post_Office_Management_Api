@@ -43,19 +43,36 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             var payment = await _payments.Find(p => p.Id == package.PaymentId).FirstOrDefaultAsync();
             var delivery = await _deliveries.Find(d => d.Id == package.DeliveryId).FirstOrDefaultAsync();
 
+            // Fetch End Office Name using EndOfficeId from delivery
+            var endOffice = await _offices.Find(o => o.Id == delivery.EndOfficeId).FirstOrDefaultAsync();
+
             // Convert Package to PackageResponse
             return new PackageResponse
             {
                 Id = package.Id,
                 SenderName = sender?.Name,
+                CustomerPhone = sender?.Phone,
+                CustomerEmail = sender?.Email,
+                OfficeId = office?.Id,
                 OfficeName = office?.OfficeName,
+                OfficeAddress = office?.Address,
+                OfficeState = office?.State,
+                OfficeCity = office?.City,
+                OfficePinCode = office?.PinCode,
+                OfficePhone = office?.Phone,
                 ServiceName = service?.Name,
                 Weight = package.Weight,
                 Distance = package.Distance,
                 DeliveryNumber = package.DeliveryNumber,
-                Description = description?.DescriptionText,
-                PaymentStatus = payment?.Status,
-                DeliveryStatus = delivery?.DeliveryStatus,
+                DescriptionText = description.DescriptionText,
+                ReceiverAddress = description.ReceiverAddress,
+                PaymentStatus = payment.Status,
+                TransactionTime = payment.TransactionTime,
+                PaymentCost = payment.Cost,
+                SendDate = delivery.SendDate,
+                DeliveryStatus = delivery.DeliveryStatus,
+                EndOfficeName = endOffice?.OfficeName,
+                DeliveryDate = delivery.DeliveryDate,
                 Receiver = package.Receiver,
                 CreatedAt = package.CreatedAt
             };
@@ -82,15 +99,28 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                 {
                     Id = package.Id,
                     SenderName = sender?.Name,
-                    OfficeId = package.OfficeId, // Ensure OfficeId is mapped correctly as a string
+                    CustomerPhone = sender?.Phone,
+                    CustomerEmail = sender?.Email,
+                    OfficeId = office?.Id,
                     OfficeName = office?.OfficeName,
+                    OfficeAddress = office?.Address,
+                    OfficeState = office?.State,
+                    OfficeCity = office?.City,
+                    OfficePinCode = office?.PinCode,
+                    OfficePhone = office?.Phone,
                     ServiceName = service?.Name,
                     Weight = package.Weight,
                     Distance = package.Distance,
                     DeliveryNumber = package.DeliveryNumber,
-                    Description = description?.DescriptionText,
-                    PaymentStatus = payment?.Status,
-                    DeliveryStatus = delivery?.DeliveryStatus,
+                    DescriptionText = description.DescriptionText,
+                    ReceiverAddress = description.ReceiverAddress,
+                    PaymentStatus = payment.Status,
+                    TransactionTime = payment.TransactionTime,
+                    PaymentCost = payment.Cost,
+                    SendDate = delivery.SendDate,
+                    DeliveryStatus = delivery.DeliveryStatus,
+                    EndOfficeName = delivery?.EndOfficeId,
+                    DeliveryDate = delivery.DeliveryDate,
                     Receiver = package.Receiver,
                     CreatedAt = package.CreatedAt
                 };
