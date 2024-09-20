@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Online_Post_Office_Management_Api.Handlers.UserHandler
 {
@@ -15,23 +16,28 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
     {
         private readonly IUserRepository _userRepository;
         private readonly string _secretKey;
+        private readonly ILogger<LoginHandler> _logger;
 
-        public LoginHandler(IUserRepository userRepository, IConfiguration configuration)
+        public LoginHandler(IUserRepository userRepository, IConfiguration configuration, ILogger<LoginHandler> logger)
         {
             _userRepository = userRepository;
             _secretKey = configuration["Jwt:Key"];
+            _logger = logger;
         }
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"Login attempt for Username: {request.Username}");
-            Console.WriteLine($"Login attempt for Password: {request.Password}");
+            _logger.LogInformation($"Login attempt for Username: {request.Username}");
+
             var (account, role) = await _userRepository.GetByUsernameAndPassword(request.Username, request.Password);
 
             if (account == null || role == null)
             {
-                Console.WriteLine("Invalid credentials.");
-                return null; 
+                _logger.LogWarning($"Invalid credentials for Username: {request.Username}");
+                return new LoginResponse
+                {
+                    ErrorMessage = "Invalid username or password."
+                };
             }
 
             // Create JWT Token
@@ -52,10 +58,12 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
+            _logger.LogInformation($"Login successful for Username: {request.Username}");
+
             return new LoginResponse
             {
                 Username = account.Username,
-                RoleName = role.RoleName, 
+                RoleName = role.RoleName,
                 Token = tokenString
             };
         }
