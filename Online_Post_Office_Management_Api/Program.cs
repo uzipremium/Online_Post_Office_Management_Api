@@ -81,6 +81,7 @@ builder.Services.AddScoped<ICustomerSendHistoryRepository, CustomerSendHistoryRe
 builder.Services.AddScoped<IOfficeSendHistoryRepository, OfficeSendHistoryRepository>();
 builder.Services.AddScoped<IReceiveHistoryRepository, ReceiveHistoryRepository>();
 builder.Services.AddScoped<IPricingServiceRepository, PricingServiceRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 // Add MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateEmployeeAndAccount).Assembly));
