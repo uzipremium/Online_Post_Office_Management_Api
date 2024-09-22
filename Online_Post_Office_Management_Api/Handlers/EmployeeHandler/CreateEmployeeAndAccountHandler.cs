@@ -32,7 +32,7 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
             // Set default role if not provided
             if (string.IsNullOrEmpty(account.RoleId))
             {
-                account.RoleId = "66ded343a0d268760bc80984"; // Default role ID
+                account.RoleId = "66ded343a0d268760bc80984"; 
             }
 
             // Set created date to current date/time

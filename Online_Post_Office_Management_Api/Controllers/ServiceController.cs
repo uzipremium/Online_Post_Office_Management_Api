@@ -22,14 +22,14 @@ namespace Online_Post_Office_Management_Api.Controllers
 
         // API để lấy thông tin một dịch vụ dựa trên ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<Service>> GetService(string id)
+        public async Task<ActionResult> GetService(string id)
         {
             var service = await _mediator.Send(new GetServiceQuery(id));
             if (service == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
             }
-            return Ok(service);
+            return Ok(service); // Trả về đối tượng dịch vụ trực tiếp
         }
 
         // API để lấy danh sách tất cả các dịch vụ
@@ -37,7 +37,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         public async Task<ActionResult<IEnumerable<Service>>> GetAllServices()
         {
             var services = await _mediator.Send(new GetAllServicesQuery());
-            return Ok(services);
+            return Ok(services); // Trả về danh sách dịch vụ
         }
 
         // API để tạo một dịch vụ mới - Chỉ Admin được phép
@@ -47,7 +47,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             if (service == null)
             {
-                return BadRequest("Service is required.");
+                return BadRequest(new { message = "Service data is required." });
             }
 
             await _mediator.Send(new CreateServiceCommand(service));
@@ -61,16 +61,16 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             if (id != service.Id)
             {
-                return BadRequest("Service ID mismatch.");
+                return BadRequest(new { message = "Service ID mismatch." });
             }
 
             var result = await _mediator.Send(new UpdateServiceCommand(service));
             if (result)
             {
-                return Ok("Service updated successfully.");
+                return Ok(new { message = "Service updated successfully." }); // Đảm bảo trả về JSON
             }
 
-            return NotFound("Service not found.");
+            return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
         }
 
         // API để xóa một dịch vụ dựa trên ID - Chỉ Admin được phép
@@ -81,10 +81,10 @@ namespace Online_Post_Office_Management_Api.Controllers
             var result = await _mediator.Send(new DeleteServiceCommand(id));
             if (result)
             {
-                return Ok("Service deleted successfully.");
+                return Ok(new { message = "Service deleted successfully." }); // Đảm bảo trả về JSON
             }
 
-            return NotFound("Service not found.");
+            return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
         }
     }
 }

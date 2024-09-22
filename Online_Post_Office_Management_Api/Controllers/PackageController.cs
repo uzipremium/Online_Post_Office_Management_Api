@@ -54,7 +54,7 @@ namespace Online_Post_Office_Management_Api.Controllers
 
         // POST: api/Package
         [HttpPost]
-        public async Task<ActionResult<Package>> CreatePackage([FromBody] CreatePackage_Payment_Description_Delivery command)
+        public async Task<ActionResult<Package>> CreatePackage([FromBody] CreatePackage_Payment_Description_Delivery_Customer command)
         {
             if (command == null)
             {
