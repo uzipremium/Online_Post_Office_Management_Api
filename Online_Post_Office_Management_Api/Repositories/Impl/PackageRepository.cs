@@ -16,7 +16,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         private readonly IMongoCollection<Description> _descriptions;
         private readonly IMongoCollection<Payment> _payments;
         private readonly IMongoCollection<Delivery> _deliveries;
-
+        
         public PackageRepository(IMongoDatabase database)
         {
             _packages = database.GetCollection<Package>("Packages");
@@ -35,47 +35,14 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             if (package == null)
                 return null;
 
-            // Fetch related data
-            var sender = await _customers.Find(s => s.Id == package.SenderId).FirstOrDefaultAsync();
-            var office = await _offices.Find(o => o.Id == package.OfficeId).FirstOrDefaultAsync();
-            var service = await _services.Find(s => s.Id == package.ServiceId).FirstOrDefaultAsync();
-            var description = await _descriptions.Find(d => d.Id == package.DescriptionId).FirstOrDefaultAsync();
-            var payment = await _payments.Find(p => p.Id == package.PaymentId).FirstOrDefaultAsync();
-            var delivery = await _deliveries.Find(d => d.Id == package.DeliveryId).FirstOrDefaultAsync();
+             var delivery = await _deliveries.Find(d => d.Id == package.DeliveryId).FirstOrDefaultAsync();
 
             // Fetch End Office Name using EndOfficeId from delivery
             var endOffice = await _offices.Find(o => o.Id == delivery.EndOfficeId).FirstOrDefaultAsync();
 
             // Convert Package to PackageResponse
-            return new PackageResponse
-            {
-                Id = package.Id,
-                SenderName = sender?.Name,
-                CustomerPhone = sender?.Phone,
-                CustomerEmail = sender?.Email,
-                OfficeId = office?.Id,
-                OfficeName = office?.OfficeName,
-                OfficeAddress = office?.Address,
-                OfficeState = office?.State,
-                OfficeCity = office?.City,
-                OfficePinCode = office?.PinCode,
-                OfficePhone = office?.Phone,
-                ServiceName = service?.Name,
-                Weight = package.Weight,
-                Distance = package.Distance,
-                DeliveryNumber = package.DeliveryNumber,
-                DescriptionText = description.DescriptionText,
-                ReceiverAddress = description.ReceiverAddress,
-                PaymentStatus = payment.Status,
-                TransactionTime = payment.TransactionTime,
-                PaymentCost = payment.Cost,
-                SendDate = delivery.SendDate,
-                DeliveryStatus = delivery.DeliveryStatus,
-                EndOfficeName = endOffice?.OfficeName,
-                DeliveryDate = delivery.DeliveryDate,
-                Receiver = package.Receiver,
-                CreatedAt = package.CreatedAt
-            };
+            var packageResponse = await FetchRelatedData(package);
+            return packageResponse;
         }
 
         public async Task<IEnumerable<PackageResponse>> GetAll()
@@ -86,45 +53,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
             foreach (var package in packages)
             {
-                // Fetch related data for each package
-                var sender = await _customers.Find(s => s.Id == package.SenderId).FirstOrDefaultAsync();
-                var office = await _offices.Find(o => o.Id == package.OfficeId).FirstOrDefaultAsync();
-                var service = await _services.Find(s => s.Id == package.ServiceId).FirstOrDefaultAsync();
-                var description = await _descriptions.Find(d => d.Id == package.DescriptionId).FirstOrDefaultAsync();
-                var payment = await _payments.Find(p => p.Id == package.PaymentId).FirstOrDefaultAsync();
-                var delivery = await _deliveries.Find(d => d.Id == package.DeliveryId).FirstOrDefaultAsync();
-
-                // Convert each Package to PackageResponse
-                var packageResponse = new PackageResponse
-                {
-                    Id = package.Id,
-                    SenderName = sender?.Name,
-                    CustomerPhone = sender?.Phone,
-                    CustomerEmail = sender?.Email,
-                    OfficeId = office?.Id,
-                    OfficeName = office?.OfficeName,
-                    OfficeAddress = office?.Address,
-                    OfficeState = office?.State,
-                    OfficeCity = office?.City,
-                    OfficePinCode = office?.PinCode,
-                    OfficePhone = office?.Phone,
-                    ServiceName = service?.Name,
-                    Weight = package.Weight,
-                    Distance = package.Distance,
-                    DeliveryNumber = package.DeliveryNumber,
-                    DescriptionText = description.DescriptionText,
-                    ReceiverAddress = description.ReceiverAddress,
-                    PaymentStatus = payment.Status,
-                    TransactionTime = payment.TransactionTime,
-                    PaymentCost = payment.Cost,
-                    SendDate = delivery.SendDate,
-                    DeliveryStatus = delivery.DeliveryStatus,
-                    EndOfficeName = delivery?.EndOfficeId,
-                    DeliveryDate = delivery.DeliveryDate,
-                    Receiver = package.Receiver,
-                    CreatedAt = package.CreatedAt
-                };
-
+                var packageResponse = await FetchRelatedData(package);
                 packageResponses.Add(packageResponse);
             }
 
@@ -158,5 +87,85 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         {
             return await _packages.Find(p => p.Id == id).FirstOrDefaultAsync();
         }
+
+        public async Task<PackageResponse> GetByPackageIdAndPhone(string packageId, string phone)
+        {
+            if (string.IsNullOrEmpty(packageId))
+            {
+                throw new ArgumentException("Package ID cannot be empty.");
+            }
+
+            if (string.IsNullOrEmpty(phone))
+            {
+                throw new ArgumentException("Phone cannot be empty.");
+            }
+
+            var package = await _packages.Find(p => p.Id == packageId).FirstOrDefaultAsync();
+
+            if (package == null)
+            {
+                throw new KeyNotFoundException("Not Found Package");
+            }
+
+            var sender = await _customers.Find(s => s.Id == package.SenderId && s.Phone == phone).FirstOrDefaultAsync();
+
+            if (sender == null)
+            {
+                throw new KeyNotFoundException("Phone number does not match the sender of the package");
+            }
+
+            var packageResponse = await FetchRelatedData(package);
+
+            packageResponse.SenderName = sender.Name;
+            packageResponse.CustomerPhone = sender.Phone;
+            packageResponse.CustomerEmail = sender.Email;
+
+            return packageResponse;
+        }
+
+
+
+        private async Task<PackageResponse> FetchRelatedData(Package package)
+        {
+            // Fetch related data
+            var sender = await _customers.Find(s => s.Id == package.SenderId).FirstOrDefaultAsync();
+            var office = await _offices.Find(o => o.Id == package.OfficeId).FirstOrDefaultAsync();
+            var service = await _services.Find(s => s.Id == package.ServiceId).FirstOrDefaultAsync();
+            var description = await _descriptions.Find(d => d.Id == package.DescriptionId).FirstOrDefaultAsync();
+            var payment = await _payments.Find(p => p.Id == package.PaymentId).FirstOrDefaultAsync();
+            var delivery = await _deliveries.Find(d => d.Id == package.DeliveryId).FirstOrDefaultAsync();
+
+            // Convert each Package to PackageResponse
+            return new PackageResponse
+            {
+                Id = package.Id,
+                SenderName = sender?.Name,
+                CustomerPhone = sender?.Phone,
+                CustomerEmail = sender?.Email,
+                OfficeId = office?.Id,
+                OfficeName = office?.OfficeName,
+                OfficeAddress = office?.Address,
+                OfficeState = office?.State,
+                OfficeCity = office?.City,
+                OfficePinCode = office?.PinCode,
+                OfficePhone = office?.Phone,
+                ServiceName = service?.Name,
+                Weight = package.Weight,
+                Distance = package.Distance,
+                DeliveryNumber = package.DeliveryNumber,
+                DescriptionText = description.DescriptionText,
+                ReceiverAddress = description.ReceiverAddress,
+                PaymentStatus = payment.Status,
+                TransactionTime = payment.TransactionTime,
+                PaymentCost = payment.Cost,
+                SendDate = delivery.SendDate,
+                DeliveryStatus = delivery.DeliveryStatus,
+                EndOfficeName = delivery?.EndOfficeId,
+                DeliveryDate = delivery.DeliveryDate,
+                Receiver = package.Receiver,
+                CreatedAt = package.CreatedAt
+            };
+        }
+
     }
 }

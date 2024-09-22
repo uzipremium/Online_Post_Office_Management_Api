@@ -5,11 +5,11 @@ namespace Online_Post_Office_Management_Api.Queries.CustomerQuery
 {
     public class GetPincodeQuery : IRequest<PincodeResponse>
     {
-        public string Location { get; set; }
+        public string OfficeId { get; set; }
 
-        public GetPincodeQuery(string location)
+        public GetPincodeQuery(string officeId)
         {
-            Location = location;
+            OfficeId = officeId;
         }
     }
 }

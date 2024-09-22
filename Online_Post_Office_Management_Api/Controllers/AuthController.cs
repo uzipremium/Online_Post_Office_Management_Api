@@ -20,14 +20,15 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginCommand command)
         {
-            var response = await _mediator.Send(command);
-
-            if (response == null)
+            try
             {
-                return Unauthorized("Invalid credentials.");
+                var response = await _mediator.Send(command);
+                return Ok(response);
             }
-
-            return Ok(response);
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
     }
 }

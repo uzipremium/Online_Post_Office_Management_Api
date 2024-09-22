@@ -19,62 +19,105 @@ namespace Online_Post_Office_Management_Api.Controllers
         }
 
         [HttpGet("CheckPackageStatus")]
-        public async Task<ActionResult<Package>> CheckPackageStatus([FromQuery] string phone, [FromQuery] string packageId)
+        public async Task<ActionResult<PackageResponse>> CheckPackageStatus([FromQuery] string phone, [FromQuery] string packageId)
         {
-            if (string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(packageId))
+            try
             {
-                return BadRequest("Phone and Package ID are required.");
+                // Validate input
+                if (string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(packageId))
+                {
+                    return BadRequest("Phone and Package ID are required.");
+                }
+
+                // Send query to MediatR
+                var query = new CheckPackageStatusQuery(phone, packageId);
+                var packageResponse = await _mediator.Send(query);
+
+                // Check if package response is null
+                if (packageResponse == null)
+                {
+                    return NotFound("Package not found or the phone number does not match the sender.");
+                }
+
+                return Ok(packageResponse);
             }
-
-            var query = new CheckPackageStatusQuery(phone, packageId);
-            var package = await _mediator.Send(query);
-
-            if (package == null)
+            catch (ArgumentException ex)
             {
-                return NotFound("Package not found or the phone number does not match the sender.");
+                return BadRequest(new { message = ex.Message });
             }
-
-            return Ok(package);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // Get Pricing
         [HttpGet("GetPricing")]
-        public async Task<ActionResult<decimal>> GetPricing([FromQuery] string serviceType, [FromQuery] double weight, [FromQuery] double distance)
+        public async Task<ActionResult<decimal>> GetPricing([FromQuery] string serviceId, [FromQuery] double weight, [FromQuery] double distance)
         {
-            if (string.IsNullOrEmpty(serviceType) || weight <= 0 || distance <= 0)
+            try
             {
-                return BadRequest("Service type, weight, and distance are required.");
+                // Log thêm thông tin để dễ debug
+                Console.WriteLine($"Service ID: {serviceId}, Weight: {weight}, Distance: {distance}");
+
+                // Validate input
+                if (string.IsNullOrEmpty(serviceId) || weight <= 0 || distance <= 0)
+                {
+                    return BadRequest(new { message = "Service ID, weight, and distance are required and must be valid values." });
+                }
+
+                // Send query to MediatR
+                var query = new GetPricingQuery(serviceId, weight, distance);
+                var price = await _mediator.Send(query);
+
+                return Ok(price);
             }
-
-            var query = new GetPricingQuery(serviceType, weight, distance);
-            var price = await _mediator.Send(query);
-
-            if (price == 0)
+            catch (ArgumentException ex)
             {
-                return NotFound("Pricing information could not be retrieved.");
+                return BadRequest(new { message = ex.Message });
             }
-
-            return Ok(price);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // Get Pincode
         [HttpGet("GetPincode")]
-        public async Task<ActionResult<PincodeResponse>> GetPincode([FromQuery] string location)
+        public async Task<ActionResult<PincodeResponse>> GetPincode([FromQuery] string officeId)
         {
-            if (string.IsNullOrEmpty(location))
+            try
             {
-                return BadRequest("Location is required.");
+                // Validate input
+                if (string.IsNullOrEmpty(officeId))
+                {
+                    return BadRequest(new { message = "Office ID is required." });
+                }
+
+                // Send query to MediatR
+                var query = new GetPincodeQuery(officeId);
+                var pincode = await _mediator.Send(query);
+
+                // Check if pincode is null
+                if (pincode == null)
+                {
+                    return NotFound(new { message = "Pincode not found for the specified office." });
+                }
+
+                return Ok(pincode);
             }
-
-            var query = new GetPincodeQuery(location);
-            var pincode = await _mediator.Send(query);
-
-            if (pincode == null)
+            catch (KeyNotFoundException ex)
             {
-                return NotFound("Pincode not found for the specified location.");
+                return NotFound(new { message = ex.Message });
             }
-
-            return Ok(pincode);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
     }
 }

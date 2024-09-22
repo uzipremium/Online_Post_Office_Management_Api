@@ -4,13 +4,13 @@ namespace Online_Post_Office_Management_Api.Queries.CustomerQuery
 {
     public class GetPricingQuery : IRequest<decimal>
     {
-        public string ServiceType { get; set; }
+        public string ServiceId { get; set; }
         public double Weight { get; set; }
         public double Distance { get; set; }
 
-        public GetPricingQuery(string serviceType, double weight, double distance)
+        public GetPricingQuery(string serviceId, double weight, double distance)
         {
-            ServiceType = serviceType;
+            ServiceId = serviceId;
             Weight = weight;
             Distance = distance;
         }

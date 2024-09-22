@@ -8,6 +8,8 @@ namespace Online_Post_Office_Management_Api.Repositories
     public interface IPackageRepository
     {
         Task<Package> GetPackageById(string id);
+        Task<PackageResponse> GetByPackageIdAndPhone(string packageId, string phone);
+
         Task<PackageResponse> GetById(string id);
         Task<IEnumerable<PackageResponse>> GetAll();
         Task Create(Package package);

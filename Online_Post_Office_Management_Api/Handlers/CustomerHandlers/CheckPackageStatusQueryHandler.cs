@@ -18,7 +18,7 @@ namespace Online_Post_Office_Management_Api.Handlers.CustomerHandlers
 
         public async Task<PackageResponse> Handle(CheckPackageStatusQuery request, CancellationToken cancellationToken)
         {
-            var packageResponse = await _packageRepository.GetById(request.PackageId);
+            var packageResponse = await _packageRepository.GetByPackageIdAndPhone(request.PackageId, request.Phone);
 
             if (packageResponse == null)
             {

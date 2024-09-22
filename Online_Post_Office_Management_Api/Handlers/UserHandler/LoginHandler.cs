@@ -33,11 +33,8 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
 
             if (account == null || role == null)
             {
-                _logger.LogWarning($"Invalid credentials for Username: {request.Username}");
-                return new LoginResponse
-                {
-                    ErrorMessage = "Invalid username or password."
-                };
+                Console.WriteLine("Invalid credentials.");
+                throw new UnauthorizedAccessException("Invalid username or password.");
             }
 
             // Create JWT Token

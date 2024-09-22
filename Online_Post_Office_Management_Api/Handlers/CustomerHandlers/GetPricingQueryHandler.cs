@@ -16,16 +16,16 @@ namespace Online_Post_Office_Management_Api.Handlers.CustomerHandlers
 
         public async Task<decimal> Handle(GetPricingQuery request, CancellationToken cancellationToken)
         {
-            // Find the service by name
-            var service = await _services.Find(s => s.Name == request.ServiceType).FirstOrDefaultAsync(cancellationToken);
+            var service = await _services.Find(s => s.Id == request.ServiceId).FirstOrDefaultAsync(cancellationToken);
 
             if (service == null)
             {
-                throw new ArgumentException("Invalid service type provided.");
+                throw new ArgumentException("Invalid service ID provided.");
             }
 
-            // Calculate the price based on base rate, weight, and distance
-            decimal price = service.BaseRate + (service.RatePerKg * (decimal)request.Weight) + (service.RatePerKm * (decimal)request.Distance);
+            decimal price = service.BaseRate +
+                            (service.RatePerKg * (decimal)request.Weight) +
+                            (service.RatePerKm * (decimal)request.Distance);
 
             return price;
         }

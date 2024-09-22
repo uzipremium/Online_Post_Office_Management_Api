@@ -17,12 +17,12 @@ namespace Online_Post_Office_Management_Api.Handlers.CustomerHandlers
 
         public async Task<PincodeResponse> Handle(GetPincodeQuery request, CancellationToken cancellationToken)
         {
-            var office = await _offices.Find(o => o.City == request.Location || o.Address.Contains(request.Location))
-                                       .FirstOrDefaultAsync(cancellationToken);
+            var office = await _offices.Find(o => o.Id == request.OfficeId)
+                               .FirstOrDefaultAsync(cancellationToken);
 
             if (office == null)
             {
-                return null; // No pincode found for the given location
+                throw new KeyNotFoundException("Not Found Office");
             }
 
             return new PincodeResponse
