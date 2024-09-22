@@ -59,6 +59,7 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
 
             return new LoginResponse
             {
+                Id = account.Id,
                 Username = account.Username,
                 RoleName = role.RoleName,
                 Token = tokenString
