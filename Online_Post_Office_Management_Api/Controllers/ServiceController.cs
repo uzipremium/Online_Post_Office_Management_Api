@@ -23,13 +23,10 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetService(string id)
         {
+
+
             try
             {
-<<<<<<< HEAD
-                return NotFound(new { message = "Service not found." });
-            }
-            return Ok(service);
-=======
                 var service = await _mediator.Send(new GetServiceQuery(id));
                 if (service == null)
                 {
@@ -42,16 +39,12 @@ namespace Online_Post_Office_Management_Api.Controllers
                 // Log the exception (you can use a logging framework here)
                 return StatusCode(500, "An error occurred while retrieving the service.");
             }
->>>>>>> dev2
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Service>>> GetAllServices()
         {
-<<<<<<< HEAD
-            var services = await _mediator.Send(new GetAllServicesQuery());
-            return Ok(services);
-=======
+
             try
             {
                 var services = await _mediator.Send(new GetAllServicesQuery());
@@ -62,7 +55,6 @@ namespace Online_Post_Office_Management_Api.Controllers
                 // Log the exception (you can use a logging framework here)
                 return StatusCode(500, "An error occurred while retrieving services.");
             }
->>>>>>> dev2
         }
 
         [Authorize(Roles = "admin")]
@@ -97,12 +89,6 @@ namespace Online_Post_Office_Management_Api.Controllers
 
             try
             {
-<<<<<<< HEAD
-                return Ok(new { message = "Service updated successfully." });
-            }
-
-            return NotFound(new { message = "Service not found." });
-=======
                 var result = await _mediator.Send(new UpdateServiceCommand(service));
                 if (result)
                 {
@@ -116,7 +102,6 @@ namespace Online_Post_Office_Management_Api.Controllers
                 // Log the exception (you can use a logging framework here)
                 return StatusCode(500, "An error occurred while updating the service.");
             }
->>>>>>> dev2
         }
 
         [Authorize(Roles = "admin")]
@@ -125,12 +110,6 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             try
             {
-<<<<<<< HEAD
-                return Ok(new { message = "Service deleted successfully." });
-            }
-
-            return NotFound(new { message = "Service not found." });
-=======
                 var result = await _mediator.Send(new DeleteServiceCommand(id));
                 if (result)
                 {
@@ -144,7 +123,6 @@ namespace Online_Post_Office_Management_Api.Controllers
                 // Log the exception (you can use a logging framework here)
                 return StatusCode(500, "An error occurred while deleting the service.");
             }
->>>>>>> dev2
         }
     }
 }
