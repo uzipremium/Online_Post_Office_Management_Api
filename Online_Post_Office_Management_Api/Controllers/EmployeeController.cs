@@ -11,8 +11,7 @@ namespace Online_Post_Office_Management_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "admin, employee")]
-
+    [Authorize(Roles = "admin, employee")]
     public class EmployeeController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -25,16 +24,31 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<EmployeeWithOfficeDto>>> GetAllEmployees()
         {
-            var employees = await _mediator.Send(new EmployeeGetAll());
-            return Ok(employees);
+            try
+            {
+                var employees = await _mediator.Send(new EmployeeGetAll());
+                return Ok(employees);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while retrieving employees.");
+            }
         }
 
-        [Authorize(Roles = "admin, employee")]
         [HttpGet("{id}")]
         public async Task<ActionResult<EmployeeWithOfficeDto>> GetEmployeeById(string id)
         {
-            var employee = await _mediator.Send(new EmployeeGetOne(id));
-            return employee is not null ? Ok(employee) : NotFound();
+            try
+            {
+                var employee = await _mediator.Send(new EmployeeGetOne(id));
+                return employee is not null ? Ok(employee) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while retrieving the employee.");
+            }
         }
 
         [HttpPost]
@@ -45,38 +59,60 @@ namespace Online_Post_Office_Management_Api.Controllers
                 return BadRequest(new { Message = "The command field is required." });
             }
 
-            var employee = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
+            try
+            {
+                var employee = await _mediator.Send(command);
+                return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while creating the employee.");
+            }
         }
 
-        [Authorize(Roles = "admin, employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult<EmployeeWithOfficeDto>> UpdateEmployee(string id, [FromBody] UpdateEmployee command)
         {
             command.Id = id;
 
-            var updatedEmployee = await _mediator.Send(command);
-
-            if (updatedEmployee != null)
+            try
             {
-                return Ok(updatedEmployee); // Trả về đối tượng đã cập nhật
-            }
+                var updatedEmployee = await _mediator.Send(command);
 
-            return NotFound("Employee not found."); // Nếu không tìm thấy nhân viên
+                if (updatedEmployee != null)
+                {
+                    return Ok(updatedEmployee); // Return the updated employee object
+                }
+
+                return NotFound("Employee not found."); // If the employee is not found
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while updating the employee.");
+            }
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteEmployee(string id)
         {
-            var result = await _mediator.Send(new DeleteEmployee_Account(id));
-
-            if (result)
+            try
             {
-                return Ok("Employee and associated account deleted successfully.");
-            }
+                var result = await _mediator.Send(new DeleteEmployee_Account(id));
 
-            return NotFound("Employee not found.");
+                if (result)
+                {
+                    return Ok("Employee and associated account deleted successfully.");
+                }
+
+                return NotFound("Employee not found.");
+            }
+            catch (Exception ex)
+            {
+           
+                return StatusCode(500, "An error occurred while deleting the employee.");
+            }
         }
     }
 }

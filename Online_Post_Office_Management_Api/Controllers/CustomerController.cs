@@ -23,17 +23,17 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             try
             {
-                // Validate input
+                
                 if (string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(packageId))
                 {
                     return BadRequest("Phone and Package ID are required.");
                 }
 
-                // Send query to MediatR
+            
                 var query = new CheckPackageStatusQuery(phone, packageId);
                 var packageResponse = await _mediator.Send(query);
 
-                // Check if package response is null
+             
                 if (packageResponse == null)
                 {
                     return NotFound("Package not found or the phone number does not match the sender.");
