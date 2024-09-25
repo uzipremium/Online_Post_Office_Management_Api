@@ -11,7 +11,10 @@ using System;
 
 namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
 {
-    public class AccountWithEmployeeWithOfficeGetOneHandler : IRequestHandler< AccountWithEmployeeWithOfficeGetOne, EmployeeWithAccountWithOfficeDto>
+    /// <summary>
+    /// Handler for retrieving an account with associated employee and office details.
+    /// </summary>
+    public class AccountWithEmployeeWithOfficeGetOneHandler : IRequestHandler<AccountWithEmployeeWithOfficeGetOne, EmployeeWithAccountWithOfficeDto>
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IEmployeeRepository _employeeRepository;
@@ -26,12 +29,8 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
 
         public async Task<EmployeeWithAccountWithOfficeDto> Handle(AccountWithEmployeeWithOfficeGetOne request, CancellationToken cancellationToken)
         {
-            // Lấy ID người dùng từ JWT Token
+            // Validate token and extract user ID
             var userIdFromToken = request.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            // Debugging
-            Console.WriteLine($"User ID from Token: {userIdFromToken}");
-            Console.WriteLine($"Account ID from Request: {request.Id}");
 
             if (string.IsNullOrEmpty(userIdFromToken))
             {
@@ -48,22 +47,21 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
                 throw new UnauthorizedAccessException("Token has expired.");
             }
 
-        
+            // Fetch account with employee and office details
             var account = await _accountRepository.GetAccountWithEmployeeAndOfficeById(request.Id);
             if (account == null)
             {
-                throw new KeyNotFoundException("Account not found.");
+                throw new KeyNotFoundException($"Account with ID {request.Id} not found.");
             }
 
-     
             var employee = await _employeeRepository.GetById(account.EmployeeId);
             if (employee == null)
             {
-                throw new KeyNotFoundException("Employee not found.");
+                throw new KeyNotFoundException($"Employee with ID {account.EmployeeId} not found.");
             }
 
             var office = await _officeRepository.GetById(employee.OfficeId);
-            var officeName = office?.OfficeName ?? "N/A"; 
+            var officeName = office?.OfficeName ?? "N/A";
 
             return new EmployeeWithAccountWithOfficeDto
             {

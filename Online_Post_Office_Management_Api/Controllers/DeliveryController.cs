@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Commands.DeliveryCommand;
 using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Queries.Deliveries;
+using System;
 using System.Threading.Tasks;
 
 namespace Online_Post_Office_Management_Api.Controllers
@@ -22,12 +23,20 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Delivery>> GetDeliveryById(string id)
         {
-            var delivery = await _mediator.Send(new DeliveryGetOne(id));
-            if (delivery == null)
+            try
             {
-                return NotFound("Delivery not found.");
+                var delivery = await _mediator.Send(new DeliveryGetOne(id));
+                if (delivery == null)
+                {
+                    return NotFound("Delivery not found.");
+                }
+                return Ok(delivery);
             }
-            return Ok(delivery);
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, "An error occurred while retrieving the delivery.");
+            }
         }
 
         [Authorize(Roles = "admin, employee")]
@@ -39,14 +48,21 @@ namespace Online_Post_Office_Management_Api.Controllers
                 return BadRequest("Delivery ID mismatch.");
             }
 
-            var result = await _mediator.Send(command);
-
-            if (result)
+            try
             {
-                return Ok("Delivery updated successfully.");
-            }
+                var result = await _mediator.Send(command);
+                if (result)
+                {
+                    return Ok("Delivery updated successfully.");
+                }
 
-            return NotFound("Delivery not found.");
+                return NotFound("Delivery not found.");
+            }
+            catch (Exception ex)
+            {
+               
+                return StatusCode(500, "An error occurred while updating the delivery.");
+            }
         }
     }
 }

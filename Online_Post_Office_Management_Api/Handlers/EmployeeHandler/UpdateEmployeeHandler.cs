@@ -3,7 +3,7 @@ using MongoDB.Driver;
 using Online_Post_Office_Management_Api.Commands.EmployeeCommand;
 using Online_Post_Office_Management_Api.Data;
 using Online_Post_Office_Management_Api.Models;
-using Online_Post_Office_Management_Api.DTO; 
+using Online_Post_Office_Management_Api.DTO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,16 +12,23 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
     public class UpdateEmployeeHandler : IRequestHandler<UpdateEmployee, EmployeeWithOfficeDto>
     {
         private readonly IMongoCollection<Employee> _employees;
-        private readonly IMongoCollection<Office> _offices; // Thêm để lấy OfficeName
+        private readonly IMongoCollection<Office> _offices;
 
         public UpdateEmployeeHandler(MongoDbService mongoDbService)
         {
             _employees = mongoDbService.Database.GetCollection<Employee>("Employees");
-            _offices = mongoDbService.Database.GetCollection<Office>("Offices"); // Khởi tạo collection Office
+            _offices = mongoDbService.Database.GetCollection<Office>("Offices");
         }
 
         public async Task<EmployeeWithOfficeDto> Handle(UpdateEmployee request, CancellationToken cancellationToken)
         {
+            // Check if the employee exists
+            var existingEmployee = await _employees.Find(e => e.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
+            if (existingEmployee == null)
+            {
+                throw new KeyNotFoundException($"Employee with ID {request.Id} not found.");
+            }
+
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, request.Id);
             var update = Builders<Employee>.Update
                 .Set(e => e.Email, request.Email)
@@ -37,11 +44,8 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
 
             if (result.ModifiedCount > 0)
             {
-                // Lấy thông tin nhân viên đã cập nhật
-                var updatedEmployee = await _employees.Find(e => e.Id == request.Id).FirstOrDefaultAsync();
-
-                // Lấy tên văn phòng
-                var office = await _offices.Find(o => o.Id == updatedEmployee.OfficeId).FirstOrDefaultAsync();
+                var updatedEmployee = await _employees.Find(e => e.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
+                var office = await _offices.Find(o => o.Id == updatedEmployee.OfficeId).FirstOrDefaultAsync(cancellationToken);
 
                 return new EmployeeWithOfficeDto
                 {
@@ -53,12 +57,12 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
                     DateOfBirth = updatedEmployee.DateOfBirth,
                     CreatedDate = updatedEmployee.CreatedDate,
                     OfficeId = updatedEmployee.OfficeId,
-                    OfficeName = office?.OfficeName, 
+                    OfficeName = office?.OfficeName,
                     AccountId = updatedEmployee.AccountId
                 };
             }
 
-            return null; 
+            throw new Exception("Failed to update the employee details."); 
         }
     }
 }

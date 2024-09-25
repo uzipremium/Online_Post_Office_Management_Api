@@ -20,27 +20,40 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-        // API để lấy thông tin một dịch vụ dựa trên ID
         [HttpGet("{id}")]
         public async Task<ActionResult> GetService(string id)
         {
-            var service = await _mediator.Send(new GetServiceQuery(id));
-            if (service == null)
+            try
             {
-                return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
+                var service = await _mediator.Send(new GetServiceQuery(id));
+                if (service == null)
+                {
+                    return NotFound(new { message = "Service not found." });
+                }
+                return Ok(service);
             }
-            return Ok(service); // Trả về đối tượng dịch vụ trực tiếp
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while retrieving the service.");
+            }
         }
 
-        // API để lấy danh sách tất cả các dịch vụ
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Service>>> GetAllServices()
         {
-            var services = await _mediator.Send(new GetAllServicesQuery());
-            return Ok(services); // Trả về danh sách dịch vụ
+            try
+            {
+                var services = await _mediator.Send(new GetAllServicesQuery());
+                return Ok(services);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while retrieving services.");
+            }
         }
 
-        // API để tạo một dịch vụ mới - Chỉ Admin được phép
         [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult> CreateService([FromBody] Service service)
@@ -50,11 +63,18 @@ namespace Online_Post_Office_Management_Api.Controllers
                 return BadRequest(new { message = "Service data is required." });
             }
 
-            await _mediator.Send(new CreateServiceCommand(service));
-            return CreatedAtAction(nameof(GetService), new { id = service.Id }, service);
+            try
+            {
+                await _mediator.Send(new CreateServiceCommand(service));
+                return CreatedAtAction(nameof(GetService), new { id = service.Id }, service);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while creating the service.");
+            }
         }
 
-        // API để cập nhật một dịch vụ dựa trên ID - Chỉ Admin được phép
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateService(string id, [FromBody] Service service)
@@ -64,27 +84,42 @@ namespace Online_Post_Office_Management_Api.Controllers
                 return BadRequest(new { message = "Service ID mismatch." });
             }
 
-            var result = await _mediator.Send(new UpdateServiceCommand(service));
-            if (result)
+            try
             {
-                return Ok(new { message = "Service updated successfully." }); // Đảm bảo trả về JSON
-            }
+                var result = await _mediator.Send(new UpdateServiceCommand(service));
+                if (result)
+                {
+                    return Ok(new { message = "Service updated successfully." });
+                }
 
-            return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
+                return NotFound(new { message = "Service not found." });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while updating the service.");
+            }
         }
 
-        // API để xóa một dịch vụ dựa trên ID - Chỉ Admin được phép
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteService(string id)
         {
-            var result = await _mediator.Send(new DeleteServiceCommand(id));
-            if (result)
+            try
             {
-                return Ok(new { message = "Service deleted successfully." }); // Đảm bảo trả về JSON
-            }
+                var result = await _mediator.Send(new DeleteServiceCommand(id));
+                if (result)
+                {
+                    return Ok(new { message = "Service deleted successfully." });
+                }
 
-            return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
+                return NotFound(new { message = "Service not found." });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while deleting the service.");
+            }
         }
     }
 }

@@ -23,12 +23,20 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Payment>> GetPaymentById(string id)
         {
-            var payment = await _mediator.Send(new PaymentGetOne(id));
-            if (payment == null)
+            try
             {
-                return NotFound("Payment not found.");
+                var payment = await _mediator.Send(new PaymentGetOne(id));
+                if (payment == null)
+                {
+                    return NotFound("Payment not found.");
+                }
+                return Ok(payment);
             }
-            return Ok(payment);
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while retrieving the payment.");
+            }
         }
 
         [Authorize(Roles = "admin, employee")]
@@ -40,21 +48,36 @@ namespace Online_Post_Office_Management_Api.Controllers
                 return BadRequest("Payment ID mismatch.");
             }
 
-            var result = await _mediator.Send(command);
-
-            if (result)
+            try
             {
-                return Ok("Payment updated successfully.");
-            }
+                var result = await _mediator.Send(command);
+                if (result)
+                {
+                    return Ok("Payment updated successfully.");
+                }
 
-            return NotFound("Payment not found.");
+                return NotFound("Payment not found.");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while updating the payment.");
+            }
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Payment>>> GetAllPayments([FromQuery] PaymentGetAll query)
         {
-            var payments = await _mediator.Send(query);
-            return Ok(payments);
+            try
+            {
+                var payments = await _mediator.Send(query);
+                return Ok(payments);
+            }
+            catch (Exception ex)
+            {
+             
+                return StatusCode(500, "An error occurred while retrieving payments.");
+            }
         }
     }
 }

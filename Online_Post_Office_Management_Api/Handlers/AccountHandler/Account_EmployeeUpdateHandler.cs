@@ -4,6 +4,7 @@ using Online_Post_Office_Management_Api.DTO;
 using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Repositories;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,23 +24,41 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
 
         public async Task<EmployeeWithAccountWithOfficeDto> Handle(UpdateAccount_Employee request, CancellationToken cancellationToken)
         {
-            // Lấy thông tin tài khoản
-            var accountId = !string.IsNullOrEmpty(request.AccountId) ? request.AccountId : request.AccountId;
-            var existingAccount = await _accountRepository.GetById(accountId);
+            // Kiểm tra thông tin tài khoản
+            if (string.IsNullOrEmpty(request.AccountId))
+            {
+                throw new ArgumentException("Account ID must be provided.");
+            }
+            var existingAccount = await _accountRepository.GetById(request.AccountId);
             if (existingAccount == null)
             {
                 throw new KeyNotFoundException("Account not found.");
             }
 
-            // Lấy thông tin nhân viên
-            var employeeId = !string.IsNullOrEmpty(request.EmployeeId) ? request.EmployeeId : request.EmployeeId;
-            var existingEmployee = await _employeeRepository.GetById(employeeId);
+            // Kiểm tra thông tin nhân viên
+            if (string.IsNullOrEmpty(request.EmployeeId))
+            {
+                throw new ArgumentException("Employee ID must be provided.");
+            }
+            var existingEmployee = await _employeeRepository.GetById(request.EmployeeId);
             if (existingEmployee == null)
             {
                 throw new KeyNotFoundException("Employee associated with the account not found.");
             }
 
-            // Cập nhật thông tin tài khoản nếu có mật khẩu mới (không rỗng)
+            // Kiểm tra tính hợp lệ của email
+            if (!string.IsNullOrEmpty(request.Email) && !IsValidEmail(request.Email))
+            {
+                throw new ArgumentException("Invalid email format.");
+            }
+
+            // Kiểm tra tính hợp lệ của số điện thoại
+            if (!string.IsNullOrEmpty(request.Phone) && !IsValidPhone(request.Phone))
+            {
+                throw new ArgumentException("Phone number must be between 10 and 15 digits.");
+            }
+
+            // Cập nhật thông tin tài khoản nếu có mật khẩu mới
             if (!string.IsNullOrEmpty(request.Password))
             {
                 existingAccount.Password = request.Password; // Cập nhật mật khẩu nếu có mật khẩu mới
@@ -58,7 +77,7 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
             {
                 AccountId = existingAccount.Id,
                 Username = existingAccount.Username,
-                Password = existingAccount.Password,  // Đã cập nhật mật khẩu nếu có mật khẩu mới
+                Password = existingAccount.Password,  
                 RoleId = existingAccount.RoleId
             });
 
@@ -67,7 +86,7 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
                 throw new Exception("Account update failed.");
             }
 
-            // Tạo đối tượng Employee từ EmployeeWithOfficeDto trước khi cập nhật
+            
             var employeeToUpdate = new Employee
             {
                 Id = existingEmployee.Id,
@@ -81,21 +100,21 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
                 AccountId = existingEmployee.AccountId
             };
 
-            // Cập nhật thông tin nhân viên trong cơ sở dữ liệu
+        
             var employeeUpdateResult = await _employeeRepository.Update(existingEmployee.Id, employeeToUpdate);
             if (employeeUpdateResult == null)
             {
                 throw new Exception("Employee update failed.");
             }
 
-            // Lấy thông tin văn phòng sau khi cập nhật
+         
             var employeeWithOffice = await _employeeRepository.GetById2(existingEmployee.Id);
             if (employeeWithOffice == null)
             {
                 throw new KeyNotFoundException("Failed to fetch employee with office information.");
             }
 
-            // Trả về DTO chứa thông tin tài khoản và nhân viên đã cập nhật
+    
             return new EmployeeWithAccountWithOfficeDto
             {
                 EmployeeId = existingEmployee.Id,
@@ -113,5 +132,17 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
             };
         }
 
+   
+        private bool IsValidEmail(string email)
+        {
+            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, emailRegex);
+        }
+
+        private bool IsValidPhone(string phone)
+        {
+            var phoneRegex = @"^\d{10,15}$"; 
+            return Regex.IsMatch(phone, phoneRegex);
+        }
     }
 }

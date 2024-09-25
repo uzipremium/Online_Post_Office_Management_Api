@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Online_Post_Office_Management_Api.Commands.PackageCommand;
 using Online_Post_Office_Management_Api.Queries.PackageQuery;
 using Online_Post_Office_Management_Api.Models;
@@ -11,8 +10,6 @@ namespace Online_Post_Office_Management_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "admin, employee")]
-
     public class PackageController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -26,30 +23,45 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPackages([FromQuery] int pageNumber = 1, [FromQuery] string officeId = null, [FromQuery] DateTime? startDate = null, [FromQuery] string paymentStatus = null)
         {
-            var query = new GetAllPackagesQuery
+            try
             {
-                PageNumber = pageNumber,
-                OfficeId = officeId,
-                StartDate = startDate,
-                PaymentStatus = paymentStatus
-            };
+                var query = new GetAllPackagesQuery
+                {
+                    PageNumber = pageNumber,
+                    OfficeId = officeId,
+                    StartDate = startDate,
+                    PaymentStatus = paymentStatus
+                };
 
-            var packages = await _mediator.Send(query);
-            return Ok(packages);
+                var packages = await _mediator.Send(query);
+                return Ok(packages);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while retrieving packages.");
+            }
         }
-
 
         // GET: api/Package/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPackageById(string id)
         {
-            var package = await _mediator.Send(new GetPackageByIdQuery { Id = id });
-            if (package == null)
+            try
             {
-                return NotFound();
-            }
+                var package = await _mediator.Send(new GetPackageByIdQuery { Id = id });
+                if (package == null)
+                {
+                    return NotFound("Package not found.");
+                }
 
-            return Ok(package);
+                return Ok(package);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while retrieving the package.");
+            }
         }
 
         // POST: api/Package
@@ -61,8 +73,16 @@ namespace Online_Post_Office_Management_Api.Controllers
                 return BadRequest(new { Message = "The request body is required." });
             }
 
-            var package = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetPackageById), new { id = package.Id }, package);
+            try
+            {
+                var package = await _mediator.Send(command);
+                return CreatedAtAction(nameof(GetPackageById), new { id = package.Id }, package);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can use a logging framework here)
+                return StatusCode(500, "An error occurred while creating the package.");
+            }
         }
 
         // PUT: api/Package/{id}
@@ -74,13 +94,21 @@ namespace Online_Post_Office_Management_Api.Controllers
                 return BadRequest("Package ID mismatch.");
             }
 
-            var result = await _mediator.Send(command);
-            if (result)
+            try
             {
-                return Ok("Package updated successfully.");
-            }
+                var result = await _mediator.Send(command);
+                if (result)
+                {
+                    return Ok("Package updated successfully.");
+                }
 
-            return NotFound("Package not found.");
+                return NotFound("Package not found.");
+            }
+            catch (Exception ex)
+            {
+         
+                return StatusCode(500, "An error occurred while updating the package.");
+            }
         }
     }
 }

@@ -19,7 +19,31 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
 
         public async Task<EmployeeWithOfficeDto> Handle(EmployeeGetOne request, CancellationToken cancellationToken)
         {
-            return await _employeeRepository.GetById(request.Id);
+            var employee = await _employeeRepository.GetById(request.Id);
+
+       
+            if (employee == null)
+            {
+              
+                throw new KeyNotFoundException($"Employee with ID {request.Id} not found.");
+            }
+
+      
+            var employeeDto = new EmployeeWithOfficeDto
+            {
+                Id = employee.Id,
+                Email = employee.Email,
+                Phone = employee.Phone,
+                Gender = employee.Gender,
+                Name = employee.Name,
+                DateOfBirth = employee.DateOfBirth,
+                CreatedDate = employee.CreatedDate,
+                OfficeId = employee.OfficeId,
+                AccountId = employee.AccountId,
+    
+            };
+
+            return employeeDto;
         }
     }
 }

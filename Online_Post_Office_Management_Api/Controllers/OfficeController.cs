@@ -23,16 +23,32 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Office>>> GetAllOffices()
         {
-            var offices = await _mediator.Send(new OfficeGetAll());
-            return Ok(offices);
+            try
+            {
+                var offices = await _mediator.Send(new OfficeGetAll());
+                return Ok(offices);
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, "An error occurred while retrieving the offices.");
+            }
         }
 
-        // GET: api/Office/{id}
+      
         [HttpGet("{id}")]
         public async Task<ActionResult<Office>> GetOfficeById(string id)
         {
-            var office = await _mediator.Send(new OfficeGetOne(id));
-            return office is not null ? Ok(office) : NotFound();
+            try
+            {
+                var office = await _mediator.Send(new OfficeGetOne(id));
+                return office is not null ? Ok(office) : NotFound("Office not found.");
+            }
+            catch (Exception ex)
+            {
+          
+                return StatusCode(500, "An error occurred while retrieving the office.");
+            }
         }
     }
 }

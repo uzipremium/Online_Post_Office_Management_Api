@@ -3,6 +3,9 @@ using MongoDB.Driver;
 using Online_Post_Office_Management_Api.DTO.Response;
 using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Queries.CustomerQuery;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Online_Post_Office_Management_Api.Handlers.CustomerHandlers
 {
@@ -17,12 +20,19 @@ namespace Online_Post_Office_Management_Api.Handlers.CustomerHandlers
 
         public async Task<PincodeResponse> Handle(GetPincodeQuery request, CancellationToken cancellationToken)
         {
+            // Validate input
+            if (string.IsNullOrEmpty(request.OfficeId))
+            {
+                throw new ArgumentException("Office ID must be provided.");
+            }
+
+            // Retrieve office information
             var office = await _offices.Find(o => o.Id == request.OfficeId)
-                               .FirstOrDefaultAsync(cancellationToken);
+                                       .FirstOrDefaultAsync(cancellationToken);
 
             if (office == null)
             {
-                throw new KeyNotFoundException("Not Found Office");
+                throw new KeyNotFoundException("Office not found.");
             }
 
             return new PincodeResponse
