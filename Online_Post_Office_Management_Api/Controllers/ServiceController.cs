@@ -20,27 +20,24 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-        // API để lấy thông tin một dịch vụ dựa trên ID
         [HttpGet("{id}")]
         public async Task<ActionResult> GetService(string id)
         {
             var service = await _mediator.Send(new GetServiceQuery(id));
             if (service == null)
             {
-                return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
+                return NotFound(new { message = "Service not found." });
             }
-            return Ok(service); // Trả về đối tượng dịch vụ trực tiếp
+            return Ok(service);
         }
 
-        // API để lấy danh sách tất cả các dịch vụ
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Service>>> GetAllServices()
         {
             var services = await _mediator.Send(new GetAllServicesQuery());
-            return Ok(services); // Trả về danh sách dịch vụ
+            return Ok(services);
         }
 
-        // API để tạo một dịch vụ mới - Chỉ Admin được phép
         [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult> CreateService([FromBody] Service service)
@@ -54,7 +51,6 @@ namespace Online_Post_Office_Management_Api.Controllers
             return CreatedAtAction(nameof(GetService), new { id = service.Id }, service);
         }
 
-        // API để cập nhật một dịch vụ dựa trên ID - Chỉ Admin được phép
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateService(string id, [FromBody] Service service)
@@ -67,13 +63,12 @@ namespace Online_Post_Office_Management_Api.Controllers
             var result = await _mediator.Send(new UpdateServiceCommand(service));
             if (result)
             {
-                return Ok(new { message = "Service updated successfully." }); // Đảm bảo trả về JSON
+                return Ok(new { message = "Service updated successfully." });
             }
 
-            return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
+            return NotFound(new { message = "Service not found." });
         }
 
-        // API để xóa một dịch vụ dựa trên ID - Chỉ Admin được phép
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteService(string id)
@@ -81,10 +76,10 @@ namespace Online_Post_Office_Management_Api.Controllers
             var result = await _mediator.Send(new DeleteServiceCommand(id));
             if (result)
             {
-                return Ok(new { message = "Service deleted successfully." }); // Đảm bảo trả về JSON
+                return Ok(new { message = "Service deleted successfully." });
             }
 
-            return NotFound(new { message = "Service not found." }); // Trả về JSON khi không tìm thấy
+            return NotFound(new { message = "Service not found." });
         }
     }
 }
