@@ -10,16 +10,13 @@ namespace Online_Post_Office_Management_Api.Repositories
         Task Create(Account account);
 
         Task<Account> GetById(string id);
-
+        Task<Account> GetByUsername(string name);
 
         Task<IEnumerable<Account>> GetAll();
 
-
         Task<EmployeeWithAccountWithOfficeDto?> GetAccountWithEmployeeAndOfficeById(string id);
 
-    
         Task<EmployeeWithAccountWithOfficeDto> Update(string id, EmployeeWithAccountWithOfficeDto account);
-
         Task<bool> Delete(string id);
     }
 }
