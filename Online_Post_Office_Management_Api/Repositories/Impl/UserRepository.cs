@@ -28,6 +28,18 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return (account, role);
         }
 
-           
+        public async Task<(Account account, Role role)> GetByUsername(string username)
+        {
+            var account = await _accounts.Find(a => a.Username == username).FirstOrDefaultAsync();
+
+            if (account == null)
+            {
+                return (null, null);
+            }
+
+            var role = await _roles.Find(r => r.Id == account.RoleId).FirstOrDefaultAsync();
+
+            return (account, role);
+        }
     }
 }

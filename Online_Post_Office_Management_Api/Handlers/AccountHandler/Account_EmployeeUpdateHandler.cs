@@ -14,107 +14,122 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly ILogger<Account_EmployeeUpdateHandler> _logger;
 
-        // Constructor để inject các repository
-        public Account_EmployeeUpdateHandler(IAccountRepository accountRepository, IEmployeeRepository employeeRepository)
+        public Account_EmployeeUpdateHandler(IAccountRepository accountRepository, IEmployeeRepository employeeRepository, ILogger<Account_EmployeeUpdateHandler> logger)
         {
             _accountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
             _employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+            _logger = logger;
         }
 
         public async Task<EmployeeWithAccountWithOfficeDto> Handle(UpdateAccount_Employee request, CancellationToken cancellationToken)
         {
-            // Kiểm tra thông tin tài khoản
-            if (string.IsNullOrEmpty(request.AccountId))
-            {
-                throw new ArgumentException("Account ID must be provided.");
-            }
+            _logger.LogInformation($"Starting account and employee update for AccountId: {request.AccountId}, EmployeeId: {request.EmployeeId}");
+
             var existingAccount = await _accountRepository.GetById(request.AccountId);
             if (existingAccount == null)
             {
                 throw new KeyNotFoundException("Account not found.");
             }
 
-            // Kiểm tra thông tin nhân viên
-            if (string.IsNullOrEmpty(request.EmployeeId))
-            {
-                throw new ArgumentException("Employee ID must be provided.");
-            }
             var existingEmployee = await _employeeRepository.GetById(request.EmployeeId);
             if (existingEmployee == null)
             {
                 throw new KeyNotFoundException("Employee associated with the account not found.");
             }
 
-            // Kiểm tra tính hợp lệ của email
+            // Validate Email
             if (!string.IsNullOrEmpty(request.Email) && !IsValidEmail(request.Email))
             {
                 throw new ArgumentException("Invalid email format.");
             }
 
-            // Kiểm tra tính hợp lệ của số điện thoại
+            // Validate Phone
             if (!string.IsNullOrEmpty(request.Phone) && !IsValidPhone(request.Phone))
             {
-                throw new ArgumentException("Phone number must be between 10 and 15 digits.");
+                throw new ArgumentException("Invalid phone format. The phone number must contain 10 to 15 digits.");
             }
 
-            // Cập nhật thông tin tài khoản nếu có mật khẩu mới
+            var employeeHasChanges = existingEmployee.Email != request.Email ||
+                                     existingEmployee.Phone != request.Phone ||
+                                     existingEmployee.Gender != request.Gender ||
+                                     existingEmployee.Name != request.Name ||
+                                     existingEmployee.DateOfBirth != request.DateOfBirth ||
+                                     existingEmployee.OfficeId != request.OfficeId;
+
+            if (!employeeHasChanges)
+            {
+                _logger.LogInformation("No changes detected in employee.");
+                return new EmployeeWithAccountWithOfficeDto
+                {
+                    EmployeeId = existingEmployee.Id,
+                    Name = existingEmployee.Name,
+                    Gender = existingEmployee.Gender,
+                    DateOfBirth = existingEmployee.DateOfBirth,
+                    CreatedDate = existingEmployee.CreatedDate,
+                    Email = existingEmployee.Email,
+                    Phone = existingEmployee.Phone,
+                    OfficeId = existingEmployee.OfficeId,
+                    OfficeName = (await _employeeRepository.GetById2(existingEmployee.Id))?.OfficeName,
+                    AccountId = existingEmployee.AccountId,
+                    Username = existingAccount.Username,
+                    RoleId = existingAccount.RoleId
+                };
+            }
+
+            _logger.LogInformation("Updating employee in the database.");
+            var employeeToUpdate = new Employee
+            {
+                Id = existingEmployee.Id,
+                Name = request.Name ?? existingEmployee.Name,
+                Gender = request.Gender ?? existingEmployee.Gender,
+                DateOfBirth = request.DateOfBirth != default ? request.DateOfBirth : existingEmployee.DateOfBirth,
+                CreatedDate = existingEmployee.CreatedDate,
+                Email = request.Email ?? existingEmployee.Email,
+                Phone = request.Phone ?? existingEmployee.Phone,
+                OfficeId = request.OfficeId ?? existingEmployee.OfficeId,
+                AccountId = existingEmployee.AccountId
+            };
+
+            var employeeUpdateResult = await _employeeRepository.Update(existingEmployee.Id, employeeToUpdate);
+            if (employeeUpdateResult == null)
+            {
+                _logger.LogError($"Failed to update employee with EmployeeId: {existingEmployee.Id}");
+                throw new Exception("Employee update failed.");
+            }
+
+            _logger.LogInformation("Successfully updated employee.");
+
             if (!string.IsNullOrEmpty(request.Password))
             {
-                existingAccount.Password = request.Password; // Cập nhật mật khẩu nếu có mật khẩu mới
+                _logger.LogInformation($"Received Password: {request.Password}");
+                _logger.LogInformation("Updating account password.");
+                existingAccount.Password = BCrypt.Net.BCrypt.HashPassword(request.Password); // Mã hóa mật khẩu
             }
 
-            // Cập nhật thông tin nhân viên nếu có thay đổi
-            if (!string.IsNullOrEmpty(request.Email)) existingEmployee.Email = request.Email;
-            if (!string.IsNullOrEmpty(request.Phone)) existingEmployee.Phone = request.Phone;
-            if (!string.IsNullOrEmpty(request.Gender)) existingEmployee.Gender = request.Gender;
-            if (!string.IsNullOrEmpty(request.Name)) existingEmployee.Name = request.Name;
-            if (request.DateOfBirth != default) existingEmployee.DateOfBirth = request.DateOfBirth;
-            if (!string.IsNullOrEmpty(request.OfficeId)) existingEmployee.OfficeId = request.OfficeId;
-
-            // Cập nhật thông tin tài khoản trong cơ sở dữ liệu
             var accountUpdateResult = await _accountRepository.Update(existingAccount.Id, new EmployeeWithAccountWithOfficeDto
             {
                 AccountId = existingAccount.Id,
-                Username = existingAccount.Username,
-                Password = existingAccount.Password,  
+                Username = existingAccount.Username, // Giữ nguyên Username
+                Password = existingAccount.Password, // Lưu mật khẩu đã mã hóa
                 RoleId = existingAccount.RoleId
             });
 
             if (accountUpdateResult == null)
             {
+                _logger.LogError($"Failed to update account with AccountId: {existingAccount.Id}");
                 throw new Exception("Account update failed.");
             }
 
-            
-            var employeeToUpdate = new Employee
-            {
-                Id = existingEmployee.Id,
-                Name = existingEmployee.Name,
-                Gender = existingEmployee.Gender,
-                DateOfBirth = existingEmployee.DateOfBirth,
-                CreatedDate = existingEmployee.CreatedDate,
-                Email = existingEmployee.Email,
-                Phone = existingEmployee.Phone,
-                OfficeId = existingEmployee.OfficeId,
-                AccountId = existingEmployee.AccountId
-            };
 
-        
-            var employeeUpdateResult = await _employeeRepository.Update(existingEmployee.Id, employeeToUpdate);
-            if (employeeUpdateResult == null)
-            {
-                throw new Exception("Employee update failed.");
-            }
-
-         
             var employeeWithOffice = await _employeeRepository.GetById2(existingEmployee.Id);
             if (employeeWithOffice == null)
             {
+                _logger.LogError($"Failed to fetch office information for EmployeeId: {existingEmployee.Id}");
                 throw new KeyNotFoundException("Failed to fetch employee with office information.");
             }
 
-    
             return new EmployeeWithAccountWithOfficeDto
             {
                 EmployeeId = existingEmployee.Id,
@@ -132,7 +147,6 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
             };
         }
 
-   
         private bool IsValidEmail(string email)
         {
             var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
@@ -141,8 +155,12 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
 
         private bool IsValidPhone(string phone)
         {
-            var phoneRegex = @"^\d{10,15}$"; 
+            var phoneRegex = @"^\d{10,15}$";
             return Regex.IsMatch(phone, phoneRegex);
         }
     }
+
 }
+
+
+

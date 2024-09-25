@@ -82,6 +82,13 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         // Cập nhật nhân viên theo Id, trả về EmployeeWithOfficeDto
         public async Task<EmployeeWithOfficeDto> Update(string id, Employee employee)
         {
+            var existingEmployee = await _employees.Find(e => e.Id == id).FirstOrDefaultAsync();
+
+            if (existingEmployee == null)
+            {
+                throw new KeyNotFoundException($"Employee with ID {id} not found.");
+            }
+
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, id);
             var update = Builders<Employee>.Update
                 .Set(e => e.Email, employee.Email)
@@ -95,13 +102,21 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
             var result = await _employees.UpdateOneAsync(filter, update);
 
-            if (result.ModifiedCount > 0)
+
+            if (result.MatchedCount == 0)
             {
-                return await GetById(id);
+                throw new KeyNotFoundException($"Employee with ID {id} not found.");
             }
 
-            return null;
+            // Kiểm tra nếu không có bản ghi nào được cập nhật
+            if (result.ModifiedCount == 0)
+            {
+                throw new InvalidOperationException($"No updates were made to Employee with ID {id}");
+            }
+
+            return await GetById(id);
         }
+
 
         // Cập nhật Employee với EmployeeWithAccountWithOfficeDto, trả về bool
         public async Task<bool> Update2(string id, EmployeeWithAccountWithOfficeDto employeeWithAccountDto)
@@ -134,11 +149,21 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             var employee = await _employees.Find(e => e.Id == id).FirstOrDefaultAsync();
             if (employee == null)
             {
-                return null;
+                throw new KeyNotFoundException($"Employee with ID {id} not found.");
             }
 
             var account = await _accounts.Find(a => a.Id == employee.AccountId).FirstOrDefaultAsync();
             var office = await _offices.Find(o => o.Id == employee.OfficeId).FirstOrDefaultAsync();
+
+            if (account == null)
+            {
+                throw new KeyNotFoundException($"Account associated with Employee ID {id} not found.");
+            }
+
+            if (office == null)
+            {
+                throw new KeyNotFoundException($"Office associated with Employee ID {id} not found.");
+            }
 
             return new EmployeeWithAccountWithOfficeDto
             {
@@ -150,13 +175,14 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                 Email = employee.Email,
                 Phone = employee.Phone,
                 OfficeId = employee.OfficeId,
-                OfficeName = office?.OfficeName,
+                OfficeName = office.OfficeName,
                 AccountId = employee.AccountId,
-                Username = account?.Username,
-                RoleId = account?.RoleId
+                Username = account.Username,
+                RoleId = account.RoleId
             };
         }
 
-   
+
+
     }
 }

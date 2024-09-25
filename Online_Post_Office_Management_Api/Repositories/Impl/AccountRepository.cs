@@ -28,6 +28,11 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         {
             return await _accounts.Find(account => account.Id == id).FirstOrDefaultAsync();
         }
+        public async Task<Account?> GetByUsername(string username)
+        {
+            return await _accounts.Find(a => a.Username == username).FirstOrDefaultAsync();
+        }
+
 
         public async Task<IEnumerable<Account>> GetAll()
         {

@@ -6,6 +6,7 @@ using Online_Post_Office_Management_Api.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BCrypt.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -27,17 +28,28 @@ namespace Online_Post_Office_Management_Api.Handlers.UserHandler
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
+
+
             _logger.LogInformation($"Login attempt for Username: {request.Username}");
 
-            var (account, role) = await _userRepository.GetByUsernameAndPassword(request.Username, request.Password);
+            // Lấy account theo Username, không cần mật khẩu vì mật khẩu được mã hóa
+            var (account, role) = await _userRepository.GetByUsername(request.Username);
 
             if (account == null || role == null)
             {
-                Console.WriteLine("Invalid credentials.");
+                _logger.LogWarning("Invalid credentials: Username not found.");
                 throw new UnauthorizedAccessException("Invalid username or password.");
             }
 
-            // Create JWT Token
+            // Kiểm tra mật khẩu với BCrypt
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, account.Password);
+            if (!isPasswordValid)
+            {
+                _logger.LogWarning("Invalid credentials: Password mismatch.");
+                throw new UnauthorizedAccessException("Invalid username or password.");
+            }
+
+            // Tạo JWT Token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor

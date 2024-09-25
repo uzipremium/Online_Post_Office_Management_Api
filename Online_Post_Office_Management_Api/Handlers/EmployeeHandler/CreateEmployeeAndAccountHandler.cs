@@ -5,6 +5,7 @@ using Online_Post_Office_Management_Api.Models;
 using MediatR;
 using System;
 using System.Text.RegularExpressions;
+using BCrypt.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,16 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
             {
                 throw new ArgumentException("Invalid email format.");
             }
+
+            // Check if username already exists
+            var existingAccount = await _accountRepository.GetByUsername(account.Username);
+            if (existingAccount != null)
+            {
+                throw new ArgumentException("Username already exists. Please choose a different username.");
+            }
+
+
+            account.Password = HashPassword(account.Password);
 
             // Generate new IDs
             account.Id = ObjectId.GenerateNewId().ToString();
@@ -61,6 +72,12 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
        
             string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             return Regex.IsMatch(email, pattern);
+        }
+
+        private string HashPassword(string password)
+        {
+            // Tạo mã hash với chi phí (work factor) mặc định là 10
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
     }
 }
