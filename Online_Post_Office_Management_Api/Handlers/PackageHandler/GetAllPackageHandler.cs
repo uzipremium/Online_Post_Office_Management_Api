@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MongoDB.Bson;
 using Online_Post_Office_Management_Api.DTO.Response;
 using Online_Post_Office_Management_Api.Queries.PackageQuery;
 using Online_Post_Office_Management_Api.Repositories;
@@ -23,12 +22,10 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
         {
             var allPackages = await _packageRepository.GetAll();
 
-            // Apply filters if provided
             if (!string.IsNullOrEmpty(request.OfficeId))
             {
                 allPackages = allPackages.Where(p => p.OfficeId == request.OfficeId);
             }
-
 
             if (request.StartDate.HasValue)
             {
@@ -40,10 +37,13 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
                 allPackages = allPackages.Where(p => p.PaymentStatus == request.PaymentStatus);
             }
 
-            // Apply pagination with fixed pageSize of 10
+     
+            int pageNumber = request.PageNumber > 0 ? request.PageNumber : 1;
+            int pageSize = request.PageSize > 0 ? request.PageSize : 10;
+
             var pagedPackages = allPackages
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize);
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
 
             return pagedPackages;
         }

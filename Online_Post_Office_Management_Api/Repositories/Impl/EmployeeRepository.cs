@@ -51,10 +51,17 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             };
         }
 
-        // Lấy tất cả nhân viên
-        public async Task<IEnumerable<EmployeeWithOfficeDto>> GetAll()
+        // Lấy tất cả nhân viên với phân trang
+        public async Task<IEnumerable<EmployeeWithOfficeDto>> GetAll(int pageNumber = 1, int pageSize = 10)
         {
-            var employees = await _employees.Find(FilterDefinition<Employee>.Empty).ToListAsync();
+            // Tính toán số lượng bản ghi cần bỏ qua và giới hạn số lượng bản ghi mỗi trang
+            int skip = (pageNumber - 1) * pageSize;
+
+            var employees = await _employees.Find(FilterDefinition<Employee>.Empty)
+                                            .Skip(skip)
+                                            .Limit(pageSize)
+                                            .ToListAsync();
+
             var employeeDtos = new List<EmployeeWithOfficeDto>();
 
             foreach (var employee in employees)
@@ -102,13 +109,11 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
             var result = await _employees.UpdateOneAsync(filter, update);
 
-
             if (result.MatchedCount == 0)
             {
                 throw new KeyNotFoundException($"Employee with ID {id} not found.");
             }
 
-            // Kiểm tra nếu không có bản ghi nào được cập nhật
             if (result.ModifiedCount == 0)
             {
                 throw new InvalidOperationException($"No updates were made to Employee with ID {id}");
@@ -116,7 +121,6 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
             return await GetById(id);
         }
-
 
         // Cập nhật Employee với EmployeeWithAccountWithOfficeDto, trả về bool
         public async Task<bool> Update2(string id, EmployeeWithAccountWithOfficeDto employeeWithAccountDto)
@@ -182,7 +186,77 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             };
         }
 
+        // Tìm kiếm nhân viên với các tiêu chí và phân trang
+        public async Task<IEnumerable<EmployeeWithOfficeDto>> Search(string name = null, string officeId = null, string phone = null, string officeName = null, int pageNumber = 1, int pageSize = 10)
+        {
+            var filterBuilder = Builders<Employee>.Filter;
+            var filter = FilterDefinition<Employee>.Empty;
 
+            // Tìm kiếm theo tên nhân viên (nếu có)
+            if (!string.IsNullOrEmpty(name))
+            {
+                filter &= filterBuilder.Regex(e => e.Name, new MongoDB.Bson.BsonRegularExpression(name, "i"));
+            }
 
+            // Tìm kiếm theo OfficeId (nếu có)
+            if (!string.IsNullOrEmpty(officeId))
+            {
+                filter &= filterBuilder.Eq(e => e.OfficeId, officeId);
+            }
+
+            // Tìm kiếm theo Phone (nếu có)
+            if (!string.IsNullOrEmpty(phone))
+            {
+                filter &= filterBuilder.Eq(e => e.Phone, phone);
+            }
+
+            // Tìm kiếm theo tên văn phòng (OfficeName)
+            List<string> officeIds = null;
+            if (!string.IsNullOrEmpty(officeName))
+            {
+                var offices = await _offices.Find(o => o.OfficeName.ToLower().Contains(officeName.ToLower())).ToListAsync();
+                officeIds = offices.ConvertAll(o => o.Id);
+
+                if (officeIds.Count > 0)
+                {
+                    filter &= filterBuilder.In(e => e.OfficeId, officeIds);
+                }
+                else
+                {
+                    return new List<EmployeeWithOfficeDto>();
+                }
+            }
+
+            // Tính toán số lượng bản ghi cần bỏ qua và giới hạn số lượng bản ghi mỗi trang
+            int skip = (pageNumber - 1) * pageSize;
+
+            // Lấy danh sách nhân viên theo bộ lọc đã tạo và phân trang
+            var employees = await _employees.Find(filter)
+                                            .Skip(skip)
+                                            .Limit(pageSize)
+                                            .ToListAsync();
+
+            var employeeDtos = new List<EmployeeWithOfficeDto>();
+
+            foreach (var employee in employees)
+            {
+                var office = await _offices.Find(o => o.Id == employee.OfficeId).FirstOrDefaultAsync();
+                employeeDtos.Add(new EmployeeWithOfficeDto
+                {
+                    Id = employee.Id,
+                    Email = employee.Email,
+                    Phone = employee.Phone,
+                    Gender = employee.Gender,
+                    Name = employee.Name,
+                    DateOfBirth = employee.DateOfBirth,
+                    CreatedDate = employee.CreatedDate,
+                    OfficeId = employee.OfficeId,
+                    OfficeName = office?.OfficeName,
+                    AccountId = employee.AccountId
+                });
+            }
+
+            return employeeDtos;
+        }
     }
 }
