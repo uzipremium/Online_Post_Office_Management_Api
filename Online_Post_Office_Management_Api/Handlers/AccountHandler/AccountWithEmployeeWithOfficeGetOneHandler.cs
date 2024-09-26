@@ -29,25 +29,27 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
 
         public async Task<EmployeeWithAccountWithOfficeDto> Handle(AccountWithEmployeeWithOfficeGetOne request, CancellationToken cancellationToken)
         {
-            // Validate token and extract user ID
-            var userIdFromToken = request.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Lấy vai trò của người dùng từ token
+            var userRole = request.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (string.IsNullOrEmpty(userIdFromToken))
+            // Nếu không phải là admin, kiểm tra ID trong token có khớp với ID yêu cầu không
+            if (userRole != "admin")
             {
-                throw new UnauthorizedAccessException("Token does not contain a valid Account ID.");
+                var userIdFromToken = request.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdFromToken) || userIdFromToken != request.Id)
+                {
+                    throw new UnauthorizedAccessException("Invalid token: Account ID mismatch.");
+                }
             }
 
-            if (userIdFromToken != request.Id)
-            {
-                throw new UnauthorizedAccessException("Invalid token: Account ID mismatch.");
-            }
-
+            // Kiểm tra token có hết hạn không
             if (request.Token.ValidTo < DateTime.UtcNow)
             {
                 throw new UnauthorizedAccessException("Token has expired.");
             }
 
-            // Fetch account with employee and office details
+            // Lấy thông tin tài khoản cùng với thông tin nhân viên và văn phòng liên quan
             var account = await _accountRepository.GetAccountWithEmployeeAndOfficeById(request.Id);
             if (account == null)
             {
