@@ -6,6 +6,7 @@ using Online_Post_Office_Management_Api.DTO;
 using Online_Post_Office_Management_Api.Queries.EmployeeQuery;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Online_Post_Office_Management_Api.Handlers.EmployeeHandler;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
@@ -110,8 +111,25 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-           
                 return StatusCode(500, "An error occurred while deleting the employee.");
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<List<EmployeeWithOfficeDto>>> SearchEmployees([FromQuery] string? name = null, [FromQuery] string? officeId = null, [FromQuery] string? phone = null, [FromQuery] string? officeName = null)
+        {
+            try
+            {
+            
+                var searchCriteria = new EmployeeSearch(name, officeId, phone, officeName);
+
+                var employees = await _mediator.Send(new SearchEmployeeQuery(searchCriteria));
+
+                return Ok(employees);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while searching for employees.");
             }
         }
     }

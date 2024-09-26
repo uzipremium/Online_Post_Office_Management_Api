@@ -117,7 +117,6 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return await GetById(id);
         }
 
-
         // Cập nhật Employee với EmployeeWithAccountWithOfficeDto, trả về bool
         public async Task<bool> Update2(string id, EmployeeWithAccountWithOfficeDto employeeWithAccountDto)
         {
@@ -183,6 +182,71 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         }
 
 
+        public async Task<IEnumerable<EmployeeWithOfficeDto>> Search(string name = null, string officeId = null, string phone = null, string officeName = null)
+        {
+            var filterBuilder = Builders<Employee>.Filter;
+            var filter = FilterDefinition<Employee>.Empty;
 
+            // Tìm kiếm theo tên nhân viên (nếu có)
+            if (!string.IsNullOrEmpty(name))
+            {
+                filter &= filterBuilder.Regex(e => e.Name, new MongoDB.Bson.BsonRegularExpression(name, "i"));
+            }
+
+            // Tìm kiếm theo OfficeId (nếu có)
+            if (!string.IsNullOrEmpty(officeId))
+            {
+                filter &= filterBuilder.Eq(e => e.OfficeId, officeId);
+            }
+
+            // Tìm kiếm theo Phone (nếu có)
+            if (!string.IsNullOrEmpty(phone))
+            {
+                filter &= filterBuilder.Eq(e => e.Phone, phone);
+            }
+
+            // Tìm kiếm theo tên văn phòng (OfficeName)
+            List<string> officeIds = null;
+            if (!string.IsNullOrEmpty(officeName))
+            {
+                // Tìm các OfficeId dựa trên tên văn phòng
+                var offices = await _offices.Find(o => o.OfficeName.ToLower().Contains(officeName.ToLower())).ToListAsync();
+                officeIds = offices.ConvertAll(o => o.Id);
+
+                if (officeIds.Count > 0)
+                {
+                    filter &= filterBuilder.In(e => e.OfficeId, officeIds);
+                }
+                else
+                {
+                    // Nếu không tìm thấy văn phòng nào, trả về danh sách rỗng
+                    return new List<EmployeeWithOfficeDto>();
+                }
+            }
+
+            // Lấy danh sách nhân viên theo bộ lọc đã tạo
+            var employees = await _employees.Find(filter).ToListAsync();
+            var employeeDtos = new List<EmployeeWithOfficeDto>();
+
+            foreach (var employee in employees)
+            {
+                var office = await _offices.Find(o => o.Id == employee.OfficeId).FirstOrDefaultAsync();
+                employeeDtos.Add(new EmployeeWithOfficeDto
+                {
+                    Id = employee.Id,
+                    Email = employee.Email,
+                    Phone = employee.Phone,
+                    Gender = employee.Gender,
+                    Name = employee.Name,
+                    DateOfBirth = employee.DateOfBirth,
+                    CreatedDate = employee.CreatedDate,
+                    OfficeId = employee.OfficeId,
+                    OfficeName = office?.OfficeName,
+                    AccountId = employee.AccountId
+                });
+            }
+
+            return employeeDtos;
+        }
     }
 }
