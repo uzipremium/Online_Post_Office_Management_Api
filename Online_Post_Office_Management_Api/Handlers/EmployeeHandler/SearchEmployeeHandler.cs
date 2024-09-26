@@ -31,21 +31,23 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
         {
             var searchCriteria = request.SearchCriteria;
 
-            // Nếu tất cả các trường đều null hoặc rỗng, trả về tất cả nhân viên
+            // Kiểm tra nếu không có tham số tìm kiếm nào, chỉ trả về danh sách với phân trang
             if (string.IsNullOrEmpty(searchCriteria.Name) &&
                 string.IsNullOrEmpty(searchCriteria.OfficeId) &&
                 string.IsNullOrEmpty(searchCriteria.Phone) &&
-                string.IsNullOrEmpty(searchCriteria.OfficeName)) // Thêm kiểm tra OfficeName
+                string.IsNullOrEmpty(searchCriteria.OfficeName))
             {
-                return await _employeeRepository.GetAll();
+                return await _employeeRepository.GetAll(searchCriteria.PageNumber, searchCriteria.PageSize);
             }
 
-            // Gọi repository với các tham số
+           
             var employees = await _employeeRepository.Search(
                 searchCriteria.Name,
                 searchCriteria.OfficeId,
                 searchCriteria.Phone,
-                searchCriteria.OfficeName // Thêm tìm kiếm theo OfficeName
+                searchCriteria.OfficeName,
+                searchCriteria.PageNumber,   
+                searchCriteria.PageSize     
             );
 
             return employees;
