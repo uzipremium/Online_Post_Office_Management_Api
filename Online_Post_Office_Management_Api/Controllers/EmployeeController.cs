@@ -88,19 +88,17 @@ namespace Online_Post_Office_Management_Api.Controllers
 
                 if (updatedEmployee != null)
                 {
-                    return Ok(updatedEmployee); // Trả về thông tin nhân viên đã cập nhật
+                    return Ok(updatedEmployee); 
                 }
 
-                return NotFound("Employee not found."); // Nếu không tìm thấy nhân viên
+                return NotFound("Employee not found."); 
             }
             catch (Exception ex)
             {
-                // Log lỗi
                 return StatusCode(500, "An error occurred while updating the employee.");
             }
         }
 
-        // Xóa nhân viên theo ID
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteEmployee(string id)
         {

@@ -16,7 +16,7 @@ namespace Online_Post_Office_Management_Api.Commands.EmployeeCommand
         public string AccountId { get; set; }
         public DateTime CreatedDate { get; set; }
 
-        public UpdateEmployee(string officeName,string id, string email, string phone, string gender, string name, DateTime dateOfBirth, string officeId, string accountId, DateTime createdDate)
+        public UpdateEmployee(string id, string email, string phone, string gender, string name, DateTime dateOfBirth, string officeId, string accountId, DateTime createdDate)
         {
             Id = id;
             Email = email;
@@ -25,9 +25,9 @@ namespace Online_Post_Office_Management_Api.Commands.EmployeeCommand
             Name = name;
             DateOfBirth = dateOfBirth;
             OfficeId = officeId;
-            OfficeName = officeName;
             AccountId = accountId;
             CreatedDate = createdDate;
         }
+
     }
 }
