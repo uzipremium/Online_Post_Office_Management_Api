@@ -32,7 +32,6 @@ namespace Online_Post_Office_Management_Api.Controllers
             {
                 var user = HttpContext.User;
 
-                // Lấy token từ Header
                 if (!Request.Headers.ContainsKey("Authorization"))
                 {
                     _logger.LogWarning("Authorization header is missing.");
@@ -42,25 +41,21 @@ namespace Online_Post_Office_Management_Api.Controllers
                 var tokenString = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
                 var handler = new JwtSecurityTokenHandler();
 
-                // Kiểm tra và đọc token
                 if (handler.ReadToken(tokenString) is not JwtSecurityToken jwtToken)
                 {
                     _logger.LogWarning("Invalid token.");
                     return Unauthorized(new { message = "Invalid token." });
                 }
 
-                // Kiểm tra nếu token đã hết hạn
                 if (jwtToken.ValidTo < DateTime.UtcNow)
                 {
                     _logger.LogWarning("Token has expired.");
                     return Unauthorized(new { message = "Token has expired." });
                 }
 
-                // Lấy vai trò của người dùng
                 var userRole = user.FindFirst(ClaimTypes.Role)?.Value;
                 _logger.LogInformation($"User role: {userRole}");
 
-                // Nếu người dùng không phải admin, kiểm tra ID có khớp không
                 if (userRole != "admin")
                 {
                     var userIdFromToken = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -77,7 +72,6 @@ namespace Online_Post_Office_Management_Api.Controllers
                     _logger.LogInformation("Admin role, bypassing Account ID check.");
                 }
 
-                // Gửi truy vấn để lấy thông tin tài khoản
                 var query = new AccountWithEmployeeWithOfficeGetOne(id, user, jwtToken);
                 var accountWithDetails = await _mediator.Send(query);
 
