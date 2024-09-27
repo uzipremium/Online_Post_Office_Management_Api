@@ -9,8 +9,8 @@ namespace Online_Post_Office_Management_Api.Repositories
     {
         Task<Payment> GetById(string id);
 
-   
-        Task<IEnumerable<Payment>> GetAll(int pageNumber, int pageSize, string paymentStatus, DateTime? startDate);
+        // Điều chỉnh phương thức GetAll để các tham số không bắt buộc
+        Task<IEnumerable<Payment>> GetAll(int? pageNumber = null, int? pageSize = null, string paymentStatus = null, DateTime? startDate = null);
 
         Task<bool> Update(string id, Payment payment);
         Task<bool> Create(Payment payment);

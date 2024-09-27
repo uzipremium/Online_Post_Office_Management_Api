@@ -20,6 +20,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
+        // Lấy payment theo Id
         [HttpGet("{id}")]
         public async Task<ActionResult<Payment>> GetPaymentById(string id)
         {
@@ -34,11 +35,11 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while retrieving the payment.");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
+        // Cập nhật payment (chỉ dành cho admin và employee)
         [Authorize(Roles = "admin, employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdatePayment(string id, [FromBody] UpdatePayment command)
@@ -60,11 +61,12 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while updating the payment.");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
+        // Lấy tất cả các payment với phân trang và các điều kiện tùy chọn
+        [Authorize(Roles = "admin, employee")]
         [HttpGet]
         public async Task<ActionResult<List<Payment>>> GetAllPayments([FromQuery] PaymentGetAll query)
         {
@@ -75,8 +77,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-             
-                return StatusCode(500, "An error occurred while retrieving payments.");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
     }

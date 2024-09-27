@@ -17,27 +17,34 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return await _paymentCollection.Find(payment => payment.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Payment>> GetAll(int pageNumber, int pageSize, string paymentStatus, DateTime? startDate)
+        public async Task<IEnumerable<Payment>> GetAll(int? pageNumber = null, int? pageSize = null, string paymentStatus = null, DateTime? startDate = null)
         {
-            // Xây dựng filter
+            // Xây dựng filter mặc định là không có điều kiện
             var filterBuilder = Builders<Payment>.Filter;
             var filter = filterBuilder.Empty;
 
+            // Thêm điều kiện theo trạng thái thanh toán (nếu có)
             if (!string.IsNullOrEmpty(paymentStatus))
             {
                 filter &= filterBuilder.Eq(p => p.Status, paymentStatus);
             }
 
+            // Thêm điều kiện theo ngày bắt đầu giao dịch (nếu có)
             if (startDate.HasValue)
             {
                 filter &= filterBuilder.Gte(p => p.TransactionTime, startDate.Value);
             }
 
-            // Tính toán phân trang
+           
+            int page = pageNumber ?? 1; 
+            int size = pageSize ?? 10;  
+            int skip = (page - 1) * size;
+
+         
             return await _paymentCollection
                 .Find(filter)
-                .Skip((pageNumber - 1) * pageSize)
-                .Limit(pageSize)
+                .Skip(skip)
+                .Limit(size)
                 .ToListAsync();
         }
 

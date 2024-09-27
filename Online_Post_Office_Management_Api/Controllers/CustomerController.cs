@@ -61,7 +61,6 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             try
             {
-                // Log thêm thông tin để dễ debug
                 Console.WriteLine($"Service ID: {serviceId}, Weight: {weight}, Distance: {distance}");
 
                 // Validate input
