@@ -56,18 +56,12 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
         {
             int skip = (pageNumber - 1) * pageSize;
 
-<<<<<<< HEAD
+
             var employees = await _employeeCollection.Find(FilterDefinition<Employee>.Empty)
-                                                     .Skip(skip)
-                                                     .Limit(pageSize)
-                                                     .ToListAsync();
-=======
-            var employees = await _employees.Find(FilterDefinition<Employee>.Empty)
                                             .SortByDescending(e => e.CreatedDate)
                                             .Skip(skip)
                                             .Limit(pageSize)
                                             .ToListAsync();
->>>>>>> Toan
 
             var employeeDtos = new List<EmployeeWithOfficeDto>();
 
@@ -92,12 +86,9 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return employeeDtos;
         }
 
-<<<<<<< HEAD
-        // Cập nhật nhân viên theo Id
-=======
+
 
         // Update employee by Id, return EmployeeWithOfficeDto
->>>>>>> Toan
         public async Task<EmployeeWithOfficeDto> Update(string id, Employee employee)
         {
             var existingEmployee = await _employeeCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
@@ -238,26 +229,16 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                 }
             }
 
-<<<<<<< HEAD
-         
-            int skip = (pageNumber - 1) * pageSize;
 
-       
-            var employees = await _employeeCollection.Find(filter)
-                                            .Skip(skip)
-                                            .Limit(pageSize)
-                                            .ToListAsync();
-=======
             // Calculate the number of records to skip and limit the number of records per page
             int skip = (pageNumber - 1) * pageSize;
 
             // Get the list of employees based on the created filter and pagination
-            var employees = await _employees.Find(filter)
+            var employees = await _employeeCollection.Find(filter)
                                    .SortByDescending(e => e.CreatedDate)
                                    .Skip(skip)
                                    .Limit(pageSize)
                                    .ToListAsync();
->>>>>>> Toan
 
             var employeeDtos = new List<EmployeeWithOfficeDto>();
 
