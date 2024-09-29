@@ -5,11 +5,13 @@ using Online_Post_Office_Management_Api.Queries.PackageQuery;
 using Online_Post_Office_Management_Api.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin, employee")]
 
     public class PackageController : ControllerBase
     {
