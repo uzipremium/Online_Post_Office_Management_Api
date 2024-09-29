@@ -19,7 +19,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
         public async Task<IEnumerable<Payment>> GetAll(int pageNumber, int pageSize, string paymentStatus, DateTime? startDate)
         {
-            // Xây dựng filter
+            // Build filter
             var filterBuilder = Builders<Payment>.Filter;
             var filter = filterBuilder.Empty;
 
@@ -33,9 +33,10 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                 filter &= filterBuilder.Gte(p => p.TransactionTime, startDate.Value);
             }
 
-            // Tính toán phân trang
+            // Calculate pagination
             return await _paymentCollection
                 .Find(filter)
+                .SortByDescending(p => p.TransactionTime)
                 .Skip((pageNumber - 1) * pageSize)
                 .Limit(pageSize)
                 .ToListAsync();

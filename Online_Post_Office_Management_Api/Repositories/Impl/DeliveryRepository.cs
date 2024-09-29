@@ -21,8 +21,12 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
         public async Task<IEnumerable<Delivery>> GetAll()
         {
-            return await _deliveries.Find(FilterDefinition<Delivery>.Empty).ToListAsync();
+            return await _deliveries
+                .Find(FilterDefinition<Delivery>.Empty)
+                .SortByDescending(d => d.SendDate)
+                .ToListAsync();
         }
+
 
         public async Task<bool> Update(string id, Delivery delivery)
         {
