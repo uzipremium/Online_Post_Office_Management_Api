@@ -19,30 +19,31 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
         public async Task<IEnumerable<Payment>> GetAll(int? pageNumber = null, int? pageSize = null, string paymentStatus = null, DateTime? startDate = null)
         {
-            // Xây dựng filter mặc định là không có điều kiện
+            // Build filter
             var filterBuilder = Builders<Payment>.Filter;
             var filter = filterBuilder.Empty;
 
-            // Thêm điều kiện theo trạng thái thanh toán (nếu có)
+            // Add condition for payment status (if any)
             if (!string.IsNullOrEmpty(paymentStatus))
             {
                 filter &= filterBuilder.Eq(p => p.Status, paymentStatus);
             }
 
-            // Thêm điều kiện theo ngày bắt đầu giao dịch (nếu có)
+            // Add condition for transaction start date (if any)
             if (startDate.HasValue)
             {
                 filter &= filterBuilder.Gte(p => p.TransactionTime, startDate.Value);
             }
 
-           
-            int page = pageNumber ?? 1; 
-            int size = pageSize ?? 10;  
+            // Calculate pagination
+            int page = pageNumber ?? 1;
+            int size = pageSize ?? 10;
             int skip = (page - 1) * size;
 
-         
+            // Execute query, sort by TransactionTime from newest to oldest, and apply pagination
             return await _paymentCollection
                 .Find(filter)
+                .SortByDescending(p => p.TransactionTime)
                 .Skip(skip)
                 .Limit(size)
                 .ToListAsync();

@@ -19,13 +19,13 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             _accountCollection = database.GetCollection<Account>("Accounts");
         }
 
-        // Tạo mới nhân viên
+        // Create a new employee
         public async Task Create(Employee employee)
         {
             await _employeeCollection.InsertOneAsync(employee);
         }
 
-        // Lấy thông tin nhân viên theo Id
+        // Get employee information by Id
         public async Task<EmployeeWithOfficeDto> GetById(string id)
         {
             var employee = await _employeeCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
@@ -51,15 +51,23 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             };
         }
 
-        // Lấy tất cả nhân viên với phân trang
+        // Get all employees with pagination
         public async Task<IEnumerable<EmployeeWithOfficeDto>> GetAll(int pageNumber = 1, int pageSize = 10)
         {
             int skip = (pageNumber - 1) * pageSize;
 
+<<<<<<< HEAD
             var employees = await _employeeCollection.Find(FilterDefinition<Employee>.Empty)
                                                      .Skip(skip)
                                                      .Limit(pageSize)
                                                      .ToListAsync();
+=======
+            var employees = await _employees.Find(FilterDefinition<Employee>.Empty)
+                                            .SortByDescending(e => e.CreatedDate)
+                                            .Skip(skip)
+                                            .Limit(pageSize)
+                                            .ToListAsync();
+>>>>>>> Toan
 
             var employeeDtos = new List<EmployeeWithOfficeDto>();
 
@@ -84,7 +92,12 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return employeeDtos;
         }
 
+<<<<<<< HEAD
         // Cập nhật nhân viên theo Id
+=======
+
+        // Update employee by Id, return EmployeeWithOfficeDto
+>>>>>>> Toan
         public async Task<EmployeeWithOfficeDto> Update(string id, Employee employee)
         {
             var existingEmployee = await _employeeCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
@@ -120,7 +133,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return await GetById(id);
         }
 
-        // Cập nhật Employee với EmployeeWithAccountWithOfficeDto, trả về bool
+        // Update Employee using EmployeeWithAccountWithOfficeDto, return bool
         public async Task<bool> Update2(string id, EmployeeWithAccountWithOfficeDto employeeWithAccountDto)
         {
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, id);
@@ -138,14 +151,14 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             return result.ModifiedCount > 0;
         }
 
-        // Xóa nhân viên theo Id
+        // Delete employee by Id
         public async Task<bool> Delete(string id)
         {
             var result = await _employeeCollection.DeleteOneAsync(e => e.Id == id);
             return result.DeletedCount > 0;
         }
 
-        // Lấy thông tin nhân viên theo Id và thông tin tài khoản
+        // Get employee information by Id along with account information
         public async Task<EmployeeWithAccountWithOfficeDto> GetById2(string id)
         {
             var employee = await _employeeCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
@@ -184,31 +197,31 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             };
         }
 
-        // Tìm kiếm nhân viên với các tiêu chí và phân trang
+        // Search employees with criteria and pagination
         public async Task<IEnumerable<EmployeeWithOfficeDto>> Search(string name = null, string officeId = null, string phone = null, string officeName = null, int pageNumber = 1, int pageSize = 10)
         {
             var filterBuilder = Builders<Employee>.Filter;
             var filter = FilterDefinition<Employee>.Empty;
 
-            // Tìm kiếm theo tên nhân viên (nếu có)
+            // Search by employee name (if any)
             if (!string.IsNullOrEmpty(name))
             {
                 filter &= filterBuilder.Regex(e => e.Name, new MongoDB.Bson.BsonRegularExpression(name, "i"));
             }
 
-            // Tìm kiếm theo OfficeId (nếu có)
+            // Search by OfficeId (if any)
             if (!string.IsNullOrEmpty(officeId))
             {
                 filter &= filterBuilder.Eq(e => e.OfficeId, officeId);
             }
 
-            // Tìm kiếm theo Phone (nếu có)
+            // Search by Phone (if any)
             if (!string.IsNullOrEmpty(phone))
             {
                 filter &= filterBuilder.Eq(e => e.Phone, phone);
             }
 
-            // Tìm kiếm theo tên văn phòng (OfficeName)
+            // Search by office name (OfficeName)
             List<string> officeIds = null;
             if (!string.IsNullOrEmpty(officeName))
             {
@@ -225,6 +238,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                 }
             }
 
+<<<<<<< HEAD
          
             int skip = (pageNumber - 1) * pageSize;
 
@@ -233,6 +247,17 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                                             .Skip(skip)
                                             .Limit(pageSize)
                                             .ToListAsync();
+=======
+            // Calculate the number of records to skip and limit the number of records per page
+            int skip = (pageNumber - 1) * pageSize;
+
+            // Get the list of employees based on the created filter and pagination
+            var employees = await _employees.Find(filter)
+                                   .SortByDescending(e => e.CreatedDate)
+                                   .Skip(skip)
+                                   .Limit(pageSize)
+                                   .ToListAsync();
+>>>>>>> Toan
 
             var employeeDtos = new List<EmployeeWithOfficeDto>();
 

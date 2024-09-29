@@ -47,7 +47,9 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
         public async Task<IEnumerable<PackageResponse>> GetAll()
         {
-            var packages = await _packages.Find(_ => true).ToListAsync();
+            var packages = await _packages.Find(_ => true)
+                                  .SortByDescending(p => p.CreatedAt)
+                                  .ToListAsync();
 
             var packageResponses = new List<PackageResponse>();
 
@@ -100,8 +102,9 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                 throw new ArgumentException("Phone cannot be empty.");
             }
 
-            var package = await _packages.Find(p => p.Id == packageId).FirstOrDefaultAsync();
-
+            var package = await _packages.Find(p => p.Id == packageId)
+                                             .SortByDescending(p => p.CreatedAt)
+                                             .FirstOrDefaultAsync();
             if (package == null)
             {
                 throw new KeyNotFoundException("Not Found Package");

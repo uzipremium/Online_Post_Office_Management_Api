@@ -23,6 +23,8 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetService(string id)
         {
+
+
             try
             {
                 var service = await _mediator.Send(new GetServiceQuery(id));
@@ -42,6 +44,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Service>>> GetAllServices()
         {
+
             try
             {
                 var services = await _mediator.Send(new GetAllServicesQuery());
