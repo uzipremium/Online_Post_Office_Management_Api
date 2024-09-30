@@ -19,12 +19,14 @@
         public decimal Weight { get; set; }
         public decimal Distance { get; set; }
 
+        public string DeliveryId { get; set; }
         public string DeliveryNumber { get; set; }
 
         public string DescriptionText { get; set; }
 
         public string ReceiverAddress { get; set; }
 
+        public string PaymentId { get; set; }
         public string PaymentStatus { get; set; }
         public DateTime TransactionTime { get; set; }
         public decimal PaymentCost { get; set; }
