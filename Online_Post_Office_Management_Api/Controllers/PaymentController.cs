@@ -6,6 +6,7 @@ using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Queries.PaymentQuery;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Online_Post_Office_Management_Api.Exceptions;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
@@ -20,7 +21,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-        // Lấy payment theo Id
+        // Get payment by Id
         [HttpGet("{id}")]
         public async Task<ActionResult<Payment>> GetPaymentById(string id)
         {
@@ -39,7 +40,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
         }
 
-        // Cập nhật payment (chỉ dành cho admin và employee)
+        // Update payment (only for admin and employee)
         [Authorize(Roles = "admin, employee")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdatePayment(string id, [FromBody] UpdatePayment command)
@@ -59,13 +60,17 @@ namespace Online_Post_Office_Management_Api.Controllers
 
                 return NotFound("Payment not found.");
             }
+            catch (NoChangeException ex)
+            {
+                return Ok(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
-        // Lấy tất cả các payment với phân trang và các điều kiện tùy chọn
+        // Get all payments with pagination and optional conditions
         [Authorize(Roles = "admin, employee")]
         [HttpGet]
         public async Task<ActionResult<List<Payment>>> GetAllPayments([FromQuery] PaymentGetAll query)

@@ -2,9 +2,9 @@
 using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Commands.DeliveryCommand;
 using Online_Post_Office_Management_Api.Repositories;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Online_Post_Office_Management_Api.Exceptions;
 
 namespace Online_Post_Office_Management_Api.Handlers.DeliveryHandler
 {
@@ -19,27 +19,33 @@ namespace Online_Post_Office_Management_Api.Handlers.DeliveryHandler
 
         public async Task<bool> Handle(UpdateDelivery request, CancellationToken cancellationToken)
         {
-            // Validate input
-            if (string.IsNullOrEmpty(request.Id))
-            {
-                throw new ArgumentException("Delivery ID must be provided.");
-            }
-
-            // Retrieve the existing delivery
             var delivery = await _deliveryRepository.GetById(request.Id);
+
             if (delivery == null)
             {
-                return false;
+                return false; // Delivery does not exist
             }
 
-            // Update delivery properties
+            // Check if there are any changes, handle nullable DeliveryDate
+            bool hasChanges = delivery.DeliveryStatus != request.DeliveryStatus ||
+                              delivery.StartOfficeId != request.StartOfficeId ||
+                              delivery.CurrentLocation != request.CurrentLocation ||
+                              delivery.EndOfficeId != request.EndOfficeId;
+
+            if (!hasChanges)
+            {
+                // If there are no changes, throw NoChangeException
+                throw new NoChangeException();
+            }
+
+            // Update the delivery properties
             delivery.SendDate = request.SendDate;
             delivery.DeliveryStatus = request.DeliveryStatus;
             delivery.StartOfficeId = request.StartOfficeId;
             delivery.CurrentLocation = request.CurrentLocation;
             delivery.EndOfficeId = request.EndOfficeId;
 
-            // Attempt to update the delivery in the repository
+            // Attempt to update the delivery
             return await _deliveryRepository.Update(request.Id, delivery);
         }
     }

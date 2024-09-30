@@ -6,6 +6,7 @@ using Online_Post_Office_Management_Api.Models;
 using Online_Post_Office_Management_Api.Queries.Deliveries;
 using System;
 using System.Threading.Tasks;
+using Online_Post_Office_Management_Api.Exceptions;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
@@ -32,9 +33,8 @@ namespace Online_Post_Office_Management_Api.Controllers
                 }
                 return Ok(delivery);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                
                 return StatusCode(500, "An error occurred while retrieving the delivery.");
             }
         }
@@ -58,9 +58,12 @@ namespace Online_Post_Office_Management_Api.Controllers
 
                 return NotFound("Delivery not found.");
             }
-            catch (Exception ex)
+            catch (NoChangeException ex)
             {
-               
+                return Ok(new { message = ex.Message });
+            }
+            catch (Exception)
+            {
                 return StatusCode(500, "An error occurred while updating the delivery.");
             }
         }

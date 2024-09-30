@@ -6,6 +6,7 @@ using Online_Post_Office_Management_Api.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
+using Online_Post_Office_Management_Api.Exceptions;
 
 namespace Online_Post_Office_Management_Api.Controllers
 {
@@ -106,6 +107,10 @@ namespace Online_Post_Office_Management_Api.Controllers
                 }
 
                 return NotFound("Package not found.");
+            }
+            catch (NoChangeException ex)
+            {
+                return Ok(new { message = ex.Message });
             }
             catch (Exception ex)
             {

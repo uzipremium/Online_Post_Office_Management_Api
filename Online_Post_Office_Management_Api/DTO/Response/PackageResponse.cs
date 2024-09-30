@@ -34,7 +34,7 @@
         public DateTime SendDate { get; set; }
         public string DeliveryStatus { get; set; }
         public string EndOfficeName { get; set; }
-        public DateTime DeliveryDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
 
 
         public string Receiver { get; set; }
