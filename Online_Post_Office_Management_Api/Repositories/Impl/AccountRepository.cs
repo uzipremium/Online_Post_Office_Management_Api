@@ -72,7 +72,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             var updateDefinition = Builders<Account>.Update
                 .Set(a => a.Username, accountDto.Username)
                 .Set(a => a.Password, accountDto.Password)
-                .Set(a => a.RoleId, accountDto.RoleId); // Update fields based on accountDto
+                .Set(a => a.RoleId, accountDto.RoleId); 
 
             var accountResult = await _accounts.UpdateOneAsync(a => a.Id == id, updateDefinition);
 

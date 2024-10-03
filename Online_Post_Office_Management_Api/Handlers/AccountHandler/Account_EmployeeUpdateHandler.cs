@@ -51,33 +51,7 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
                 throw new ArgumentException("Invalid phone format. The phone number must contain 10 to 15 digits.");
             }
 
-            var employeeHasChanges = existingEmployee.Email != request.Email ||
-                                     existingEmployee.Phone != request.Phone ||
-                                     existingEmployee.Gender != request.Gender ||
-                                     existingEmployee.Name != request.Name ||
-                                     existingEmployee.DateOfBirth != request.DateOfBirth ||
-                                     existingEmployee.OfficeId != request.OfficeId;
-
-            if (!employeeHasChanges)
-            {
-                _logger.LogInformation("No changes detected in employee.");
-                return new EmployeeWithAccountWithOfficeDto
-                {
-                    EmployeeId = existingEmployee.Id,
-                    Name = existingEmployee.Name,
-                    Gender = existingEmployee.Gender,
-                    DateOfBirth = existingEmployee.DateOfBirth,
-                    CreatedDate = existingEmployee.CreatedDate,
-                    Email = existingEmployee.Email,
-                    Phone = existingEmployee.Phone,
-                    OfficeId = existingEmployee.OfficeId,
-                    OfficeName = (await _employeeRepository.GetById2(existingEmployee.Id))?.OfficeName,
-                    AccountId = existingEmployee.AccountId,
-                    Username = existingAccount.Username,
-                    RoleId = existingAccount.RoleId
-                };
-            }
-
+            // Always update employee details
             _logger.LogInformation("Updating employee in the database.");
             var employeeToUpdate = new Employee
             {
@@ -101,6 +75,7 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
 
             _logger.LogInformation("Successfully updated employee.");
 
+            // Always update account details
             if (!string.IsNullOrEmpty(request.Password))
             {
                 _logger.LogInformation($"Received Password: {request.Password}");
@@ -111,8 +86,8 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
             var accountUpdateResult = await _accountRepository.Update(existingAccount.Id, new EmployeeWithAccountWithOfficeDto
             {
                 AccountId = existingAccount.Id,
-                Username = existingAccount.Username, // Giữ nguyên Username
-                Password = existingAccount.Password, // Lưu mật khẩu đã mã hóa
+                Username = existingAccount.Username,
+                Password = existingAccount.Password,
                 RoleId = existingAccount.RoleId
             });
 
@@ -122,7 +97,7 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
                 throw new Exception("Account update failed.");
             }
 
-
+            // Fetch updated employee information with office details
             var employeeWithOffice = await _employeeRepository.GetById2(existingEmployee.Id);
             if (employeeWithOffice == null)
             {
@@ -161,6 +136,3 @@ namespace Online_Post_Office_Management_Api.Handlers.AccountHandler
     }
 
 }
-
-
-
