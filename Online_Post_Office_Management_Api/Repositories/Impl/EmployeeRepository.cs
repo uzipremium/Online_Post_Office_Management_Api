@@ -88,16 +88,9 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
 
 
 
-        // Update employee by Id, return EmployeeWithOfficeDto
+       
         public async Task<EmployeeWithOfficeDto> Update(string id, Employee employee)
         {
-            var existingEmployee = await _employeeCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
-
-            if (existingEmployee == null)
-            {
-                throw new KeyNotFoundException($"Employee with ID {id} not found.");
-            }
-
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, id);
             var update = Builders<Employee>.Update
                 .Set(e => e.Email, employee.Email)
@@ -109,17 +102,7 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
                 .Set(e => e.AccountId, employee.AccountId)
                 .Set(e => e.CreatedDate, employee.CreatedDate);
 
-            var result = await _employeeCollection.UpdateOneAsync(filter, update);
-
-            if (result.MatchedCount == 0)
-            {
-                throw new KeyNotFoundException($"Employee with ID {id} not found.");
-            }
-
-            if (result.ModifiedCount == 0)
-            {
-                throw new InvalidOperationException($"No updates were made to Employee with ID {id}");
-            }
+            await _employeeCollection.UpdateOneAsync(filter, update);
 
             return await GetById(id);
         }
@@ -141,7 +124,6 @@ namespace Online_Post_Office_Management_Api.Repositories.Impl
             var result = await _employeeCollection.UpdateOneAsync(filter, update);
             return result.ModifiedCount > 0;
         }
-
         // Delete employee by Id
         public async Task<bool> Delete(string id)
         {
