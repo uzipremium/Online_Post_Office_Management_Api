@@ -76,7 +76,6 @@ namespace Online_Post_Office_Management_Api.Handlers.EmployeeHandler
 
         private string HashPassword(string password)
         {
-            // Tạo mã hash với chi phí (work factor) mặc định là 10
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
     }

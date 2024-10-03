@@ -20,17 +20,17 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
         private readonly ICustomerRepository _customerRepository;
         private readonly ICustomerSendHistoryRepository _customerSendHistoryRepository;
         private readonly IOfficeSendHistoryRepository _officeSendHistoryRepository;
-        private readonly ILogger<CreatePackage_Payment_Description_Delivery_CustomerHandler> _logger;
+        private readonly IServiceRepository _serviceRepository;
 
         public CreatePackage_Payment_Description_Delivery_CustomerHandler(
-            IPackageRepository packageRepository,
-            IPaymentRepository paymentRepository,
-            IDescriptionRepository descriptionRepository,
-            IDeliveryRepository deliveryRepository,
-            ICustomerRepository customerRepository,
-            ICustomerSendHistoryRepository customerSendHistoryRepository,
-            IOfficeSendHistoryRepository officeSendHistoryRepository,
-            ILogger<CreatePackage_Payment_Description_Delivery_CustomerHandler> logger)
+        IPackageRepository packageRepository,
+        IPaymentRepository paymentRepository,
+        IDescriptionRepository descriptionRepository,
+        IDeliveryRepository deliveryRepository,
+        ICustomerRepository customerRepository,
+        ICustomerSendHistoryRepository customerSendHistoryRepository,
+        IOfficeSendHistoryRepository officeSendHistoryRepository,
+        IServiceRepository serviceRepository)
         {
             _packageRepository = packageRepository;
             _paymentRepository = paymentRepository;
@@ -39,7 +39,7 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
             _customerRepository = customerRepository;
             _customerSendHistoryRepository = customerSendHistoryRepository;
             _officeSendHistoryRepository = officeSendHistoryRepository;
-            _logger = logger;
+            _serviceRepository = serviceRepository;
         }
 
         public async Task<Package> Handle(CreatePackage_Payment_Description_Delivery_Customer request, CancellationToken cancellationToken)
@@ -56,7 +56,6 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
                 var customerByPhone = await _customerRepository.FindByPhone(customer.Phone);
                 if (customerByPhone != null)
                 {
-                    _logger.LogInformation($"Using existing customer with ID {customerByPhone.Id}.");
                     package.SenderId = customerByPhone.Id;
                 }
                 else
@@ -64,7 +63,6 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
                     customer.Id = ObjectId.GenerateNewId().ToString();
                     await _customerRepository.Create(customer);
                     package.SenderId = customer.Id;
-                    _logger.LogInformation($"Created new customer with ID {customer.Id}.");
                 }
 
                 // Generate new IDs for entities
@@ -72,6 +70,14 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
                 payment.Id = string.IsNullOrEmpty(payment.Id) ? ObjectId.GenerateNewId().ToString() : payment.Id;
                 description.Id = string.IsNullOrEmpty(description.Id) ? ObjectId.GenerateNewId().ToString() : description.Id;
                 delivery.Id = string.IsNullOrEmpty(delivery.Id) ? ObjectId.GenerateNewId().ToString() : delivery.Id;
+
+                var service = await _serviceRepository.GetById(package.ServiceId);
+                if (service == null)
+                {
+                    throw new ArgumentException("Invalid service type provided.");
+                }
+
+                payment.Cost = CalculateCost(package.Weight, package.Distance, service.BaseRate, service.RatePerKg, service.RatePerKm);
 
                 // Save Payment, Description, and Delivery in parallel
                 await Task.WhenAll(
@@ -87,7 +93,6 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
 
                 // Save Package
                 await _packageRepository.Create(package);
-                _logger.LogInformation($"Created package with ID {package.Id}.");
 
                 // Create Customer Send History if SenderId is available
                 if (!string.IsNullOrEmpty(package.SenderId))
@@ -99,7 +104,6 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
                         CustomerId = package.SenderId
                     };
                     await _customerSendHistoryRepository.Create(customerSendHistory);
-                    _logger.LogInformation($"Created customer send history for customer ID {package.SenderId}.");
                 }
 
                 
@@ -112,16 +116,21 @@ namespace Online_Post_Office_Management_Api.Handlers.PackageHandler
                         OfficeId = package.OfficeId
                     };
                     await _officeSendHistoryRepository.Create(officeSendHistory);
-                    _logger.LogInformation($"Created office send history for office ID {package.OfficeId}.");
                 }
 
                 return package;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the package.");
                 throw; 
             }
         }
+
+        private decimal CalculateCost(decimal weight, decimal distance, decimal baseRate, decimal ratePerKg, decimal ratePerKm)
+        {
+            decimal cost = baseRate + (ratePerKg * (decimal)weight) + (ratePerKm * (decimal)distance);
+            return cost;
+        }
+
     }
 }
