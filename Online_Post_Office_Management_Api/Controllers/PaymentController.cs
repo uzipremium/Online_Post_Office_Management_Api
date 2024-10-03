@@ -30,13 +30,13 @@ namespace Online_Post_Office_Management_Api.Controllers
                 var payment = await _mediator.Send(new PaymentGetOne(id));
                 if (payment == null)
                 {
-                    return NotFound("Payment not found.");
+                    return NotFound(new { message = "Payment not found." });
                 }
                 return Ok(payment);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -47,7 +47,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             if (id != command.Id)
             {
-                return BadRequest("Payment ID mismatch.");
+                return BadRequest(new { message = "Payment ID mismatch." });
             }
 
             try
@@ -55,10 +55,10 @@ namespace Online_Post_Office_Management_Api.Controllers
                 var result = await _mediator.Send(command);
                 if (result)
                 {
-                    return Ok("Payment updated successfully.");
+                    return Ok(new { message = "Payment updated successfully." });
                 }
 
-                return NotFound("Payment not found.");
+                return NotFound(new { message = "Payment not found." });
             }
             catch (NoChangeException ex)
             {
@@ -66,7 +66,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -82,7 +82,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
     }

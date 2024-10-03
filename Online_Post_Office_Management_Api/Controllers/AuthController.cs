@@ -29,6 +29,10 @@ namespace Online_Post_Office_Management_Api.Controllers
             {
                 return Unauthorized(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
+            }
         }
     }
 }

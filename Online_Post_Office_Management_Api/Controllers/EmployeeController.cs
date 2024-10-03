@@ -22,24 +22,20 @@ namespace Online_Post_Office_Management_Api.Controllers
             _mediator = mediator;
         }
 
-        // Lấy tất cả nhân viên với phân trang
         [HttpGet]
         public async Task<ActionResult<List<EmployeeWithOfficeDto>>> GetAllEmployees([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                // Truyền tham số phân trang vào EmployeeGetAll
                 var employees = await _mediator.Send(new EmployeeGetAll(pageNumber, pageSize));
                 return Ok(employees);
             }
             catch (Exception ex)
             {
-                // Log lỗi (có thể sử dụng logging framework)
-                return StatusCode(500, "An error occurred while retrieving employees.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
-        // Lấy nhân viên theo ID
         [HttpGet("{id}")]
         public async Task<ActionResult<EmployeeWithOfficeDto>> GetEmployeeById(string id)
         {
@@ -50,12 +46,10 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log lỗi
-                return StatusCode(500, "An error occurred while retrieving the employee.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
-        // Tạo mới nhân viên cùng tài khoản
         [HttpPost]
         public async Task<ActionResult<EmployeeWithOfficeDto>> CreateEmployeeWithAccount([FromBody] CreateEmployeeAndAccount command)
         {
@@ -71,8 +65,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log lỗi
-                return StatusCode(500, "An error occurred while creating the employee.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -88,14 +81,14 @@ namespace Online_Post_Office_Management_Api.Controllers
 
                 if (updatedEmployee != null)
                 {
-                    return Ok(updatedEmployee); 
+                    return Ok(new { message = "Employee and associated account updated successfully." }); 
                 }
 
-                return NotFound("Employee not found."); 
+                return NotFound(new { message = "Employee not found." }); 
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while updating the employee.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -108,15 +101,14 @@ namespace Online_Post_Office_Management_Api.Controllers
 
                 if (result)
                 {
-                    return Ok("Employee and associated account deleted successfully.");
+                    return Ok(new { message = "Employee and associated account deleted successfully." });
                 }
 
-                return NotFound("Employee not found.");
+                return NotFound(new { message = "Employee not found." });
             }
             catch (Exception ex)
             {
-                // Log lỗi
-                return StatusCode(500, "An error occurred while deleting the employee.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -134,8 +126,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-          
-                return StatusCode(500, "An error occurred while searching for employees.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
     }

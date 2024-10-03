@@ -24,7 +24,6 @@ namespace Online_Post_Office_Management_Api.Controllers
         public async Task<ActionResult> GetService(string id)
         {
 
-
             try
             {
                 var service = await _mediator.Send(new GetServiceQuery(id));
@@ -36,8 +35,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while retrieving the service.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -52,8 +50,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while retrieving services.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -73,8 +70,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while creating the service.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -99,8 +95,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while updating the service.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -120,8 +115,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while deleting the service.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
     }

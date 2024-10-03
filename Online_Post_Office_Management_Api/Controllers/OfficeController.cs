@@ -30,8 +30,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                
-                return StatusCode(500, "An error occurred while retrieving the offices.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -46,8 +45,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-          
-                return StatusCode(500, "An error occurred while retrieving the office.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
     }

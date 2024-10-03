@@ -29,13 +29,13 @@ namespace Online_Post_Office_Management_Api.Controllers
                 var delivery = await _mediator.Send(new DeliveryGetOne(id));
                 if (delivery == null)
                 {
-                    return NotFound("Delivery not found.");
+                    return NotFound(new { message = "Delivery not found." });
                 }
                 return Ok(delivery);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while retrieving the delivery.");
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -45,7 +45,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             if (id != command.Id)
             {
-                return BadRequest("Delivery ID mismatch.");
+                return BadRequest(new { message = "Delivery ID mismatch." });
             }
 
             try
@@ -53,7 +53,7 @@ namespace Online_Post_Office_Management_Api.Controllers
                 var result = await _mediator.Send(command);
                 if (result)
                 {
-                    return Ok("Delivery updated successfully.");
+                    return Ok(new { message = "Delivery updated successfully." });
                 }
 
                 return NotFound("Delivery not found.");
@@ -62,9 +62,9 @@ namespace Online_Post_Office_Management_Api.Controllers
             {
                 return Ok(new { message = ex.Message });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while updating the delivery.");
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
     }

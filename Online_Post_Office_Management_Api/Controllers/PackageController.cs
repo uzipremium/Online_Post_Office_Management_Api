@@ -42,8 +42,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while retrieving packages.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -56,15 +55,14 @@ namespace Online_Post_Office_Management_Api.Controllers
                 var package = await _mediator.Send(new GetPackageByIdQuery { Id = id });
                 if (package == null)
                 {
-                    return NotFound("Package not found.");
+                    return NotFound(new { message = "Package not found." });
                 }
 
                 return Ok(package);
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while retrieving the package.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -84,8 +82,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework here)
-                return StatusCode(500, "An error occurred while creating the package.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
 
@@ -95,7 +92,7 @@ namespace Online_Post_Office_Management_Api.Controllers
         {
             if (id != command.Id)
             {
-                return BadRequest("Package ID mismatch.");
+                return BadRequest(new { message = "Package ID mismatch." });
             }
 
             try
@@ -103,10 +100,10 @@ namespace Online_Post_Office_Management_Api.Controllers
                 var result = await _mediator.Send(command);
                 if (result)
                 {
-                    return Ok("Package updated successfully.");
+                    return Ok(new { message = "Package updated successfully." });
                 }
 
-                return NotFound("Package not found.");
+                return NotFound(new { message = "Package not found." });
             }
             catch (NoChangeException ex)
             {
@@ -114,8 +111,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             }
             catch (Exception ex)
             {
-         
-                return StatusCode(500, "An error occurred while updating the package.");
+                return StatusCode(500, new { message = "An error occurred while processing the request.", details = ex.Message });
             }
         }
     }

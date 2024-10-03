@@ -26,7 +26,7 @@ namespace Online_Post_Office_Management_Api.Controllers
                 
                 if (string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(packageId))
                 {
-                    return BadRequest("Phone and Package ID are required.");
+                    return BadRequest(new { message = "Phone and Package ID are required." });
                 }
 
             
@@ -36,7 +36,7 @@ namespace Online_Post_Office_Management_Api.Controllers
              
                 if (packageResponse == null)
                 {
-                    return NotFound("Package not found or the phone number does not match the sender.");
+                    return NotFound(new { message = "Package not found." });
                 }
 
                 return Ok(packageResponse);
@@ -117,6 +117,7 @@ namespace Online_Post_Office_Management_Api.Controllers
             {
                 return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
+            
         }
     }
 }
